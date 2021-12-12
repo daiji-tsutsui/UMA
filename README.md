@@ -1,3 +1,3 @@
 # UMA
 
-They are Unbelievable Miraculous Animals.
+They are Unbelievable and Miraculous Animals.
