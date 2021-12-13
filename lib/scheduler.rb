@@ -36,6 +36,7 @@ class Scheduler
     return false if is_finished
     if Time.now > @next
       @next = @table.shift
+      @next = @end if @next.nil?
       puts "[INFO][#{Time.now}] Performed!! Next will be performed at #{@next}"
       return true
     end
