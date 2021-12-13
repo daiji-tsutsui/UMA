@@ -1,3 +1,5 @@
+require "./lib/google/google"
+
 def test_scraping(searc_query)
   home = Google::Home.new
   home.load

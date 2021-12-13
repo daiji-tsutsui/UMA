@@ -12,7 +12,7 @@ class Scheduler
     indicator = @start.clone
     rule = input["rule"].shift
     while true do
-      if indicator > rule["until"]
+      if indicator >= rule["until"]
         rule = input["rule"].shift
         break if rule.nil?
         next
@@ -36,6 +36,7 @@ class Scheduler
     return false if is_finished
     if Time.now > @next
       @next = @table.shift
+      puts "[INFO][#{Time.now}] Performed!! Next will be performed at #{@next}"
       return true
     end
     false
