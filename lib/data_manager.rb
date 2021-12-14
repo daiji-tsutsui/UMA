@@ -9,7 +9,6 @@ class DataManager
     if File.exist? @filename
       @data = open(@filename, 'r') { |f| YAML.load(f) }
     end
-    log
   end
 
   def save

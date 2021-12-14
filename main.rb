@@ -11,6 +11,7 @@ fetcher = OddsFetcher.new(
   Jra::RACE_11
 )
 manager = DataManager.new('test3')
+manager.log
 
 fetcher.odds = manager.data
 while true do

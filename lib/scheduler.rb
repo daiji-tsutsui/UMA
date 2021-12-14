@@ -5,23 +5,34 @@ class Scheduler
 
   def initialize
     input = open('schedule.yaml', 'r') { |f| YAML.load(f) }
-    @start = input["start"]
-    @end = input["end"]
+    @start = input['start']
+    @end = input['end']
     @table = [@start]
 
     indicator = @start.clone
-    rule = input["rule"].shift
+    rule = input['rule'].shift
     while true do
-      if indicator >= rule["until"]
-        rule = input["rule"].shift
-        break if rule.nil?
-        next
+      if !rule['until'].nil?
+        if indicator >= rule['until']
+          rule = get_new_rule(input['rule'])
+          rule.nil? ? break : next
+        end
+      else
+        if rule['duration'] <= 0
+          rule = get_new_rule(input['rule'])
+          rule.nil? ? break : next
+        end
+        rule['duration'] -= rule['interval']
       end
-      indicator += rule["freq"]
+      indicator += rule['interval']
       break if indicator > @end
       @table.push indicator
     end
     @next = @table.shift
+  end
+
+  def get_new_rule(rules)
+    rules.shift
   end
 
   def wait
