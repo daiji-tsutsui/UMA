@@ -25,8 +25,18 @@ class OddsFetcher
       # 単勝・複勝ページ
       single_odds_page = race_odds_page.go_single_odds(@race)
       current_odds = single_odds_page.get_tan_odds
-      @odds.push current_odds
-      puts "[INFO][#{Time.now}] Got odds: #{current_odds}"
+      @odds.push({
+        at: Time.now,
+        data: current_odds,
+      })
+    end
+    log
+  end
+
+  def log
+    odds = @odds[-1]
+    unless odds.nil?
+      puts "[INFO][#{odds[:at]}] Got odds: #{odds[:data]}"
     end
   end
 

@@ -5,13 +5,18 @@ class DataManager
 
   def initialize(filename, base_url = './data')
     @filename = "#{base_url}/#{filename}.yml"
-    @data =
+    @data = []
     if File.exist? @filename
       @data = open(@filename, 'r') { |f| YAML.load(f) }
     end
+    log
   end
 
   def save
     YAML.dump(@data, File.open(@filename, 'w'))
+  end
+
+  def log
+    puts "[INFO][#{Time.now}] DataManager got data: #{@data}"
   end
 end

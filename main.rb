@@ -10,13 +10,14 @@ fetcher = OddsFetcher.new(
   '阪神',
   Jra::RACE_11
 )
-manager = DataManager.new('test2')
-puts "[INFO][#{Time.now}] manager got data: #{manager.data}"
+manager = DataManager.new('test3')
 
+fetcher.odds = manager.data
 while true do
   break if scheduler.is_finished
-  fetcher.run if scheduler.is_on_fire
+  if scheduler.is_on_fire
+    fetcher.run
+  end
   sleep 1
 end
-manager.data = fetcher.odds
 manager.save
