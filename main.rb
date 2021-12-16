@@ -10,8 +10,8 @@ fetcher = OddsFetcher.new(
   '阪神',
   Jra::RACE_11
 )
-manager = DataManager.new('test3')
-manager.log
+# manager = DataManager.new('test3')
+# manager.log
 analyzer = OddsAnalyzer.new
 
 # fetcher.odds = manager.data
@@ -46,3 +46,5 @@ odds_list = [
 ]
 analyzer.forecast(odds_list)
 pp analyzer
+p loss_list = analyzer.loss(odds_list)
+puts "[INFO] total loss: #{loss_list.sum}"
