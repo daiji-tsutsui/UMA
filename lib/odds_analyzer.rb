@@ -1,8 +1,16 @@
 
 
 class OddsAnalyzer
+  attr_accessor :t, :a, :b
+  attr_accessor :ini_odds
 
-  def forecast
+  def initialize
+    @a = [1.0]
+    @b = []
+  end
+
+  def forecast(odds_list)
+    adjust_params(odds_list)
   end
 
   # t: true distribution
@@ -26,11 +34,24 @@ class OddsAnalyzer
   end
 
   def kl_div(p, q)
-    size = p.size
-    sum = 0.0;
-    p.each_with_index do |pi, i|
-      sum += pi * (Math.log(pi) - Math.log(q[i]))
-    end
-    sum
+    f = p.map.with_index { |pi, i| Math.log(pi) - Math.log(q[i]) }
+    expectation(p, f)
   end
+
+  private
+    def expectation(base, f)
+      fw = base.map.with_index { |r, i| r * f[i] }
+      fw.sum
+    end
+
+    def adjust_params(odds_list)
+      @ini_odds ||= odds_list[0]
+      @t ||= @ini_odds.clone
+      if @a.size != odds_list.size
+        ratio = @a.size.to_f/odds_list.size.to_f
+        @a.map! { |ai| ai * ratio }
+        @a += Array.new(odds_list.size - @a.size, 1.0/odds_list.size.to_f)
+      end
+      @b += Array.new(odds_list.size - @b.size - 1, @b[-1] || 1.0)
+    end
 end
