@@ -7,10 +7,10 @@ require 'logger'
 logger = Logger.new("./log/#{Time.now.strftime("%Y%m%d")}.log")
 scheduler = Scheduler.new(logger)
 fetcher = OddsFetcher.new(
-  :selenium_chrome_headless,
-  Jra::SUNDAY,
-  '阪神',
-  Jra::RACE_1
+  driver: :selenium_chrome_headless,
+  day: Jra::SUNDAY,
+  course: '阪神',
+  race: Jra::RACE_1,
 )
 # manager = DataManager.new('dummy1')
 manager = DataManager.new('test4')
@@ -33,8 +33,7 @@ manager.save
 #
 # end
 
-odds_list = manager.data.map { |record| record[:data] }
-p analyzer.forecast(odds_list)
-pp analyzer
+odds_list = manager.odds
 p loss_list = analyzer.loss(odds_list)
+p analyzer.model
 logger.info "Total loss: #{loss_list.sum}"

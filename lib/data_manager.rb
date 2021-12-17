@@ -15,4 +15,7 @@ class DataManager
     YAML.dump(@data, File.open(@filename, 'w'))
   end
 
+  def odds
+    @data.map { |record| record[:data] }
+  end
 end
