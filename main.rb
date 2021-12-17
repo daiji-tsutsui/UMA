@@ -10,8 +10,8 @@ fetcher = OddsFetcher.new(
   '阪神',
   Jra::RACE_11
 )
-# manager = DataManager.new('test3')
-# manager.log
+manager = DataManager.new('dummy1')
+manager.log
 analyzer = OddsAnalyzer.new
 
 # fetcher.odds = manager.data
@@ -24,27 +24,12 @@ analyzer = OddsAnalyzer.new
 # end
 # manager.save
 
-odds = [9.4, 57.3, 89.5, 46.0, 1.7, 16.8, 19.9, 7.0, 89.8, 90.5, 40.4, 14.6, 8.1, 46.4]
-p = analyzer.odds_to_prob([9.4, 57.3, 89.5, 46.0, 1.7, 16.8, 19.9, 7.0, 89.8, 90.5, 40.4, 14.6, 8.1, 46.4])
-q = analyzer.odds_to_prob([9.4, 57.7, 90.0, 46.3, 1.7, 16.9, 19.9, 7.0, 89.3, 91.0, 40.3, 14.6, 8.1, 46.4])
-r = analyzer.odds_to_prob([9.5, 60.5, 93.9, 48.5, 1.6, 17.5, 20.2, 7.0, 93.8, 91.4, 41.3, 15.1, 8.1, 48.7])
-one = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-one = analyzer.odds_to_prob(one)
-p analyzer.forecast_next(one, odds, r, 1.0, 0.1)
-p analyzer.forecast_next(one, odds, r, 1.0, 1.0)
-p analyzer.forecast_next(one, odds, r, 1.0, 10.0)
-p analyzer.kl_div(p, q)
-p analyzer.kl_div(q, r)
-p analyzer.kl_div(p, r)
-p analyzer.kl_div(p, one)
+# while true do
+#
+# end
 
-pp analyzer
-odds_list = [
-  [9.4, 57.3, 89.5, 46.0, 1.7, 16.8, 19.9, 7.0, 89.8, 90.5, 40.4, 14.6, 8.1, 46.4],
-  [9.4, 57.7, 90.0, 46.3, 1.7, 16.9, 19.9, 7.0, 89.3, 91.0, 40.3, 14.6, 8.1, 46.4],
-  [9.5, 60.5, 93.9, 48.5, 1.6, 17.5, 20.2, 7.0, 93.8, 91.4, 41.3, 15.1, 8.1, 48.7],
-]
-analyzer.forecast(odds_list)
+odds_list = manager.data.map { |record| record[:data] }
+p analyzer.forecast(odds_list)
 pp analyzer
 p loss_list = analyzer.loss(odds_list)
 puts "[INFO] total loss: #{loss_list.sum}"

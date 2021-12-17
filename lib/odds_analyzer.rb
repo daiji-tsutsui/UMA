@@ -13,15 +13,15 @@ class OddsAnalyzer
   def forecast(odds_list)
     adjust_params(odds_list)
     p = @ini_p
-    model_seq = [@ini_p]
+    model = [@ini_p]
     (odds_list.size - 1).times do |i|
       odds = odds_list[i]
       a = @a[i+1]/@a.first(i+2).sum
       b = @b[i]
       p = forecast_next(p, odds, @t, a, b)
-      model_seq.push p
+      model.push p
     end
-    model_seq
+    model
   end
 
   # t: true distribution
