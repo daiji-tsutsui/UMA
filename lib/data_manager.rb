@@ -15,7 +15,4 @@ class DataManager
     YAML.dump(@data, File.open(@filename, 'w'))
   end
 
-  def log
-    puts "[INFO][#{Time.now}] DataManager got data: #{@data}"
-  end
 end

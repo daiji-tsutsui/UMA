@@ -30,14 +30,14 @@ class OddsFetcher
         data: current_odds,
       })
     end
-    log
   end
 
   def log
     odds = @odds[-1]
     unless odds.nil?
-      puts "[INFO][#{odds[:at]}] Got odds: #{odds[:data]}"
+      return "Got odds: #{odds[:data]}"
     end
+    "There are no odds!!"
   end
 
 end

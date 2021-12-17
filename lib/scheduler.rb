@@ -3,11 +3,12 @@ require 'yaml'
 class Scheduler
   attr_accessor :next
 
-  def initialize
+  def initialize(logger)
     input = open('schedule.yaml', 'r') { |f| YAML.load(f) }
     @start = input['start']
     @end = input['end']
     @table = [@start]
+    @logger = logger
 
     indicator = @start.clone
     rule = input['rule'].shift
@@ -48,7 +49,7 @@ class Scheduler
     if Time.now > @next
       @next = @table.shift
       @next = @end if @next.nil?
-      puts "[INFO][#{Time.now}] Performed!! Next will be performed at #{@next}"
+      @logger.info "Performed!! Next will be performed at #{@next}"
       return true
     end
     false
