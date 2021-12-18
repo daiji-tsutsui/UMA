@@ -5,17 +5,12 @@ require './lib/jra/pages'
 class OddsFetcher
   attr_accessor :odds
 
-  def initialize(
-    driver: :selenium_chrome_headless,
-    day: Jra::SUNDAY,
-    course: '阪神',
-    race: Jra::RACE_1
-  )
+  def initialize(**options)
     @odds = []
-    @driver = driver
-    @day = day
-    @course = course
-    @race = race
+    @driver = options[:driver]  || :selenium_chrome_headless
+    @day    = options[:day]     || Jra::SUNDAY
+    @course = options[:course]  || '阪神'
+    @race   = options[:race]    || Jra::RACE_1
   end
 
   def run
