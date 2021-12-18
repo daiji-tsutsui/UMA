@@ -82,11 +82,7 @@ class OddsAnalyzer
 
     def update_a(p, odds_list)
       da = grad_a(p, odds_list)
-      v = Array.new(@a.size, 0.0)
-      da.each.with_index(1) do |da_i, i|
-        v[i] = -@eps * da_i
-        v[0] += @eps * da_i
-      end
+      v = da.map { |da_i| -@eps * da_i }
       @a.move(v, 'a')
     end
 
@@ -139,7 +135,7 @@ class OddsAnalyzer
 
     def grad_t_for_instant(p, teacher, strat, a, b, odds)
       result = []
-      odds.size.times do |j|
+      (1..odds.size - 1).each do |j|
         f = p.map.with_index do |p_i, i|
           a * b * strat[i] * (
             odds[j] * (delta(i, j) - strat[j])

@@ -11,8 +11,12 @@ class Probability < Array
     expectation(f)
   end
 
+  # v: eta-vector
   def move(v, name = nil)
-    self.map!.with_index { |p_i, i| p_i + v[i] }
+    v.each.with_index(1) do |v_i, i|
+      self[i] += v_i
+      self[0] -= v_i
+    end
     warn = check_total(name)
     normalize
     warn
