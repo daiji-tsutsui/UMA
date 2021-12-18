@@ -30,20 +30,27 @@ analyzer = OddsAnalyzer.new
 # manager.save
 
 p odds_list = manager.odds
-puts "odds_list.size: #{odds_list.size}"
-start = Time.now
-1001.times do |t|
-  analyzer.forecast(odds_list)
-  analyzer.update_params(odds_list)
-  if t % 10 == 0
-    puts "Count: #{t}, Time elapsed: #{Time.now - start}"
-    puts "Loss: #{analyzer.loss(odds_list)}"
-    # puts "a: #{analyzer.a.sum}, t: #{analyzer.t.sum}"
-    # puts "a: #{analyzer.a}"
-    # puts "b: #{analyzer.b}"
-    # puts "t: #{analyzer.t}"
-  end
-end
+# puts "odds_list.size: #{odds_list.size}"
+# start = Time.now
+# 1001.times do |t|
+#   analyzer.forecast(odds_list)
+#   analyzer.update_params(odds_list)
+#   if t % 10 == 0
+#     puts "Count: #{t}, Time elapsed: #{Time.now - start}"
+#     puts "Loss: #{analyzer.loss(odds_list)}"
+#     # puts "a: #{analyzer.a.sum}, t: #{analyzer.t.sum}"
+#     # puts "a: #{analyzer.a}"
+#     # puts "b: #{analyzer.b}"
+#     puts "t: #{analyzer.t}"
+#   end
+# end
+
+p p = Probability.new_from_odds(odds_list[0])
+p q = Probability.new_from_odds(odds_list[1])
+p r = Probability.new_from_odds(odds_list[2])
+puts p.kl_div(q)
+puts q.kl_div(r)
+puts p.kl_div(r)
 
 # p loss_list = analyzer.loss(odds_list)
 # p analyzer.model
