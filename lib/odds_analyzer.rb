@@ -65,6 +65,10 @@ class OddsAnalyzer
     Probability.new(w)
   end
 
+  def strat(odds, b = @b[-1])
+    strategy(odds, @t, b)
+  end
+
 
   private
 
