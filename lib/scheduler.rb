@@ -55,6 +55,13 @@ class Scheduler
     false
   end
 
+  def is_on_deadline
+    if Time.now > @next - 10
+      return true
+    end
+    false
+  end
+
   def is_finished
     Time.now > @end
   end
