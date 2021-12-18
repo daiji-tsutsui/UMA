@@ -41,9 +41,12 @@ start = Time.now
     # puts "b: #{analyzer.b}"
     # puts "t: #{analyzer.t}"
   end
+  sleep 0.01
 end
 
 p loss_list = analyzer.loss(odds_list, with_forecast: true)
 # p analyzer.model
 logger.info "Total loss: #{loss_list.sum}"
-pp analyzer
+pp "a: #{analyzer.a}"
+pp "b: #{analyzer.b}"
+pp "t: #{analyzer.t}"

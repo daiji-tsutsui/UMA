@@ -1,4 +1,5 @@
 require "./lib/probability"
+require "./lib/positives"
 
 class OddsAnalyzer
   attr_accessor :t, :a, :b
@@ -9,8 +10,8 @@ class OddsAnalyzer
   def initialize(logger = nil)
     @logger = logger
     @a = Probability.new
-    @b = [1.0]          # @b[0]はdummy
-    @eps = 0.01
+    @b = Positives.new      # @b[0]はdummy
+    @eps = 0.05
   end
 
   # mathematical model
@@ -42,9 +43,11 @@ class OddsAnalyzer
     with_forecast ? forecast(odds_list) : adjust_params(odds_list)
     warnings = []
     @model.each do |p|
-      warnings.push update_a(p, odds_list)
-      warnings.push update_t(p, odds_list)
-      update_b(p, odds_list)
+      warnings.concat [
+        update_a(p, odds_list),
+        update_t(p, odds_list),
+        update_b(p, odds_list),
+      ]
     end
     check_params(warnings)
   end
@@ -69,7 +72,7 @@ class OddsAnalyzer
       @ini_p ||= Probability.new_from_odds(odds_list[0])
       @t ||= @ini_p.clone
       @a.extend(odds_list.size) if @a.size < odds_list.size
-      @b += Array.new(odds_list.size - @b.size, @b[-1] || 1.0)
+      @b.extend(odds_list.size) if @b.size < odds_list.size
     end
 
     def check_params(addition = [])
@@ -88,9 +91,8 @@ class OddsAnalyzer
 
     def update_b(p, odds_list)
       db = grad_b(p, odds_list)
-      db.each.with_index(1) do |db_i, i|
-        @b[i] -= @eps * db_i
-      end
+      v = db.map { |db_i| -@eps * db_i }
+      @b.move_theta(v, 'b')
     end
 
     def update_t(p, odds_list)
