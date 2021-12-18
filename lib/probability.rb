@@ -22,6 +22,18 @@ class Probability < Array
     warn
   end
 
+  # v: eta-vector
+  def move_theta(v, name = nil)
+    v_theta = fisher.map do |row|
+      row.map.with_index { |entry, j| entry * v[j] }.sum
+    end
+    v_theta.each.with_index(1) do |v_i, i|
+      self[i] *= Math.exp(v_i)
+    end
+    normalize
+    nil
+  end
+
   def extend(trg_size)
     self.map! { |p_i| p_i * self.size.to_f / trg_size.to_f }
     ext = Array.new(trg_size - self.size, 1.0 / trg_size.to_f)
@@ -75,5 +87,18 @@ class Probability < Array
       if (self.sum - 1.0).abs > 0.05
         "Probability \'#{name}\' is maybe not normalized"
       end
+    end
+
+    def fisher
+      size1 = self.size - 1
+      matrix = Array.new(size1)
+      (0..size1 - 1).each do |i|
+        matrix[i] = Array.new(size1)
+        (0..size1 - 1).each do |j|
+          matrix[i][j] = -self[i + 1] * self[j + 1]
+          matrix[i][j] += self[i + 1] if i == j
+        end
+      end
+      matrix
     end
 end

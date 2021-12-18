@@ -10,7 +10,7 @@ class OddsAnalyzer
     @logger = logger
     @a = Probability.new
     @b = [1.0]          # @b[0]はdummy
-    @eps = 0.0001
+    @eps = 0.01
   end
 
   # mathematical model
@@ -20,8 +20,8 @@ class OddsAnalyzer
     @model = []
     @blueprint = []
     (1..odds_list.size - 1).each do |i|
-      odds = odds_list[i-1]
-      a = @a[i] / @a.first(i+1).sum
+      odds = odds_list[i - 1]
+      a = @a[i] / @a.first(i + 1).sum
       b = @b[i]
       p = forecast_next(p, odds, @t, a, b)
       @model.push p
@@ -83,7 +83,7 @@ class OddsAnalyzer
     def update_a(p, odds_list)
       da = grad_a(p, odds_list)
       v = da.map { |da_i| -@eps * da_i }
-      @a.move(v, 'a')
+      @a.move_theta(v, 'a')
     end
 
     def update_b(p, odds_list)
@@ -96,7 +96,7 @@ class OddsAnalyzer
     def update_t(p, odds_list)
       dt = grad_t(p, odds_list)
       v = dt.map { |dt_i| -@eps * dt_i }
-      @t.move(v, 'b')
+      @t.move_theta(v, 'b')
     end
 
     def grad_a(p, odds_list)
@@ -106,23 +106,11 @@ class OddsAnalyzer
       end
     end
 
-    def grad_a_for_instant(p, teacher, strat)
-      f = p.map.with_index { |p_i, i| (strat[i] - @ini_p[i]) / p_i }
-      -teacher.expectation(f)
-    end
-
     def grad_b(p, odds_list)
       @blueprint.map.with_index(1) do |strat, k|
         teacher = Probability.new_from_odds(odds_list[k])
         grad_b_for_instant(p, teacher, strat, @a[k], odds_list[k])
       end
-    end
-
-    def grad_b_for_instant(p, teacher, strat, a, odds)
-      f1 = @t.map.with_index { |ti, i| ti * odds[i] }
-      exp_f1 = strat.expectation(f1)
-      f2 = p.map.with_index { |p_i, i| a * strat[i] * (f1[i] - exp_f1) / p_i }
-      -teacher.expectation(f2)
     end
 
     def grad_t(p, odds_list)
@@ -131,6 +119,18 @@ class OddsAnalyzer
         grad_t_for_instant(p, teacher, strat, @a[k], @b[k], odds_list[k])
       end
       grad_list.transpose.map { |row| row.sum }
+    end
+
+    def grad_a_for_instant(p, teacher, strat)
+      f = p.map.with_index { |p_i, i| (strat[i] - @ini_p[i]) / p_i }
+      -teacher.expectation(f)
+    end
+
+    def grad_b_for_instant(p, teacher, strat, a, odds)
+      f1 = @t.map.with_index { |ti, i| ti * odds[i] }
+      exp_f1 = strat.expectation(f1)
+      f2 = p.map.with_index { |p_i, i| a * strat[i] * (f1[i] - exp_f1) / p_i }
+      -teacher.expectation(f2)
     end
 
     def grad_t_for_instant(p, teacher, strat, a, b, odds)

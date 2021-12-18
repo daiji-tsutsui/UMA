@@ -43,7 +43,7 @@ start = Time.now
   end
 end
 
-# p loss_list = analyzer.loss(odds_list, with_forecast: true)
+p loss_list = analyzer.loss(odds_list, with_forecast: true)
 # p analyzer.model
-# logger.info "Total loss: #{loss_list.sum}"
+logger.info "Total loss: #{loss_list.sum}"
 pp analyzer
