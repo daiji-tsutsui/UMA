@@ -10,7 +10,7 @@ fetcher = OddsFetcher.new(
   driver: :selenium_chrome_headless,
   day: Jra::SUNDAY,
   course: '阪神',
-  race: Jra::RACE_1,
+  race: Jra::RACE_11,
 )
 # manager = DataManager.new('dummy1')
 manager = DataManager.new('test5')
@@ -22,8 +22,8 @@ fetcher.odds = manager.data
 while true do
   break if scheduler.is_finished
   if scheduler.is_on_fire
-    fetcher.run
-    logger.info fetcher.log
+    result = fetcher.run
+    logger.info result if !result.nil?
   end
   sleep 1
 end
