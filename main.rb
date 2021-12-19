@@ -10,9 +10,9 @@ fetcher = OddsFetcher.new(
   driver: :selenium_chrome_headless,
   day: Jra::SUNDAY,
   course: '阪神',
-  race: Jra::RACE_9,
+  race: Jra::RACE_12,
 )
-manager = DataManager.new("#{Time.now.strftime("%Y%m%d_%H%M")}")
+manager = DataManager.new("Hanshin_R12")
 analyzer = OddsAnalyzer.new(logger)
 summarizer = ReportMaker.new(analyzer, logger)
 
@@ -35,7 +35,7 @@ while true do
     manager.save
     converge = false
     summarized = false
-  elsif !scheduler.is_on_deadline && !converge
+  elsif odds_list.size > 1 && !scheduler.is_on_deadline && !converge
     analyzer.update_params(odds_list, with_forecast: true)
     if !summarized
       summarizer.summarize(odds_list[-1])
@@ -44,8 +44,9 @@ while true do
     if count % 100 == 0
       loss = analyzer.loss(odds_list).sum
       logger.info "Loss: #{loss}"
-      if (loss - prev_loss).abs < 1e-4
+      if (loss - prev_loss).abs < 1e-5
         converge = true
+        summarizer.summarize(odds_list[-1])
         logger.info "Fitting converges!"
       end
       prev_loss = loss

@@ -4,7 +4,7 @@ class DataManager
   attr_accessor :data
 
   def initialize(filename, base_url = './data')
-    @filename = "#{base_url}/#{filename}.yml"
+    @filename = "#{base_url}/#{Time.now.strftime("%Y%m%d")}_#{filename}.yml"
     @data = []
     if File.exist? @filename
       @data = open(@filename, 'r') { |f| YAML.load(f) }

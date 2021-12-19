@@ -1,9 +1,11 @@
-start: 2021-12-19 13:58:00 +0900
-end: 2021-12-19 14:22:10 +0900
+start: 2021-12-19 15:50:00 +0900
+end: 2021-12-19 16:20:20 +0900
 rule:
-  # - duration: 01:00:00
+  # - duration: 00:30:00
   #   interval: 00:10:00
   # - duration: 00:30:00
-  #   interval: 00:06:00
-  - duration: 00:30:00
-    interval: 00:03:00
+  #   interval: 00:07:30
+  - duration: 00:20:00
+    interval: 00:05:00
+  - duration: 00:20:00
+    interval: 00:02:00
