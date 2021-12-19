@@ -11,7 +11,7 @@ class OddsAnalyzer
     @logger = logger
     @a = Probability.new
     @b = Positives.new      # @b[0]はdummy
-    @eps = 0.005
+    @eps = 0.01
   end
 
   # mathematical model

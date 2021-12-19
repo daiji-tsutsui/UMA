@@ -27,7 +27,7 @@ class OddsFetcher
       # 単勝・複勝ページ
       single_odds_page = race_odds_page.go_single_odds(@race)
       current_odds = single_odds_page.get_tan_odds
-      if @duplicate || current_odds != @odds[-1][:data]
+      if @duplicate || @odds[-1].nil? || current_odds != @odds[-1][:data]
         @odds.push({
           at: Time.now,
           data: current_odds,

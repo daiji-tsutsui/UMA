@@ -21,7 +21,7 @@ class Positives < Array
   end
 
   def extend(trg_size)
-    ext = Array.new(trg_size - self.size, self[-1] || 1.0)
+    ext = Array.new(trg_size - self.size, 1.0)
     self.concat(ext)
   end
 end
