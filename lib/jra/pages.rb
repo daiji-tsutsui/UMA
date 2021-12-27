@@ -1,3 +1,6 @@
+require 'site_prism'
+require 'capybara/dsl'
+
 module Jra
 
   # 今週のオッズボタン用
