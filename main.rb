@@ -9,11 +9,11 @@ scheduler = Scheduler.new(logger)
 fetcher = OddsFetcher.new(
   driver:     :selenium_chrome_headless,
   day:        Jra::SUNDAY,
-  course:     '阪神',
-  race:       Jra::RACE_12,
+  course:     '中山',
+  race:       Jra::RACE_11,
   duplicate:  false,
 )
-manager = DataManager.new("test1")
+manager = DataManager.new("Arima")
 analyzer = OddsAnalyzer.new(logger)
 summarizer = ReportMaker.new(analyzer, logger)
 
@@ -33,8 +33,8 @@ while true do
     break
   end
   if scheduler.is_on_fire
-    # result = fetcher.run
-    # logger.info result unless result.nil?
+    result = fetcher.run
+    logger.info result unless result.nil?
     odds_list = manager.odds
     manager.save
     converge = false
