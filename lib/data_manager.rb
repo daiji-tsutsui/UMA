@@ -3,8 +3,14 @@ require 'yaml'
 class DataManager
   attr_accessor :data
 
-  def initialize(filename, base_url = './data')
-    @filename = "#{base_url}/#{Time.now.strftime("%Y%m%d")}_#{filename}.yml"
+  def initialize(filename, **options)
+    base_path = options[:base_path] || './data'
+    simulate = options[:simulate] || false
+    unless simulate
+      @filename = "#{base_path}/#{Time.now.strftime("%Y%m%d")}_#{filename}.yml"
+    else
+      @filename = "#{base_path}/#{filename}.yml"
+    end
     @data = []
     if File.exist? @filename
       @data = open(@filename, 'r') { |f| YAML.load(f) }

@@ -4,33 +4,38 @@ require "./lib/data_manager"
 require "./lib/scheduler"
 require "./lib/odds_analyzer"
 require "./lib/odds_fetcher"
-
+require "./lib/simulator"
 
 class Uma
   attr_accessor :converge, :summarized
 
   def initialize(**options)
-    @logger = Logger.new("./log/#{Time.now.strftime("%Y%m%d_%H%M")}.log")
-    @scheduler = Scheduler.new(@logger)
-    @fetcher = OddsFetcher.new(options)
-    @manager = DataManager.new(options[:datafile])
+    @simulate = options[:simulate]
+    unless @simulate
+      @manager = DataManager.new(options[:datafile])
+      @logger = Logger.new("./log/#{Time.now.strftime("%Y%m%d_%H%M")}.log")
+      @fetcher = OddsFetcher.new(options)
+      @fetcher.odds = @manager.data
+      @scheduler = Scheduler.new(@logger)
+    else
+      @manager = DataManager.new(options[:simfile], simulate: true)
+      @logger = Logger.new("./log/#{Time.now.strftime("%Y%m%d_%H%M")}_#{options[:simfile]}.log")
+      @fetcher = Simulator.new(@logger, @manager.data)
+      @scheduler = @fetcher
+    end
     @analyzer = OddsAnalyzer.new(@logger)
     @summarizer = ReportMaker.new(@analyzer, @logger)
 
-    @logger.info "DataManager got data: #{@manager.data}"
-    @fetcher.odds = @manager.data
     get_odds
-    @converge = false
-    @summarized = false
-    @prev_loss = 0.0
+    @logger.info "DataManager got data: #{@manager.data}"
+    init_params
   end
 
   def run
     result = @fetcher.run
     @logger.info result unless result.nil?
     get_odds
-    @converge = false
-    @summarized = false
+    init_flags
   end
 
   def learn(check_loss: false)
@@ -74,13 +79,23 @@ class Uma
   end
 
   def save
-    @manager.save
+    @manager.save unless @simulate
   end
 
   private
 
+    def init_flags
+      @converge = false
+      @summarized = false
+    end
+
+    def init_params
+      init_flags
+      @prev_loss = 0.0
+    end
+
     def get_odds
-      @odds_list = @manager.odds
+      @odds_list = (@simulate ? @fetcher.get_odds : @manager.odds)
       save
     end
 

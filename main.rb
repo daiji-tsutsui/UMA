@@ -5,8 +5,10 @@ uma = Uma.new(
   day:        Jra::SUNDAY,
   course:     '中山',
   race:       Jra::RACE_11,
-  duplicate:  true,
   datafile:   'test1',
+  duplicate:  true,
+  simulate:   true,
+  simfile:    '20211227_test1'
 )
 
 count = 0
