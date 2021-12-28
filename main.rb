@@ -2,12 +2,12 @@ require './lib/uma'
 
 uma = Uma.new(
   driver:     :selenium_chrome_headless,
-  day:        Jra::SUNDAY,
+  day:        Jra::THIRD,
   course:     '中山',
   race:       Jra::RACE_11,
-  datafile:   'test1',
-  duplicate:  true,
-  simulate:   true,
+  datafile:   'HopefulS',
+  duplicate:  false,
+  simulate:   false,
   simfile:    '20211227_test1'
 )
 

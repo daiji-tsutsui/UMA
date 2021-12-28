@@ -6,6 +6,7 @@ module Jra
   # 今週のオッズボタン用
   SATURDAY = 0
   SUNDAY = 1
+  THIRD = 2
   # レース番号
   RACE_1 = 0
   RACE_2 = 1

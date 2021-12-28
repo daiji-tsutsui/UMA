@@ -3,3 +3,4 @@ vendor/
 Gemfile.lock
 data/
 log/
+debug.rb
