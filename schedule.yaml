@@ -1,17 +1,15 @@
-start: 2021-12-28 15:03:00 +0900
-end: 2021-12-28 15:25:20 +0900
+start: 2022-05-29 12:50:00 +0900
+end: 2022-05-29 15:40:00 +0900
 rule:
-  # - duration: 00:40:00
-  #   interval: 00:10:00
-  # - duration: 00:30:00
-  #   interval: 00:07:30
-  # - duration: 00:30:00
-  #   interval: 00:05:00
-  # - duration: 00:20:00
-  #   interval: 00:02:00
-  - duration: 00:16:00
-    interval: 00:04:00
-  - duration: 00:10:00
+  - until: 2022-05-29 14:30:00 +0900
+    interval: 00:20:00
+  - until: 2022-05-29 15:00:00 +0900
+    interval: 00:10:00
+  - until: 2022-05-29 15:20:00 +0900
+    interval: 00:05:00
+  - until: 2022-05-29 15:40:00 +0900
     interval: 00:02:00
+  # - duration: 00:16:00
+  #   interval: 00:04:00
   # - duration: 00:10:00
-  #   interval: 00:00:20
+  #   interval: 00:02:00
