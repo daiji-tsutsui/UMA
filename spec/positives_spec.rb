@@ -1,8 +1,79 @@
 require 'positives'
 
-RSpec.describe 'test' do
-  it 'new' do
-    vect = Positives.new
-    # pp vect.class
+RSpec.describe Positives do
+  describe '#new' do
+    it 'with no args' do
+      vect = Positives.new
+      expect(vect).to eq [1.0]
+    end
+
+    it 'with an arg' do
+      arg = [0.1, 0.2, 0.3]
+      vect = Positives.new(arg)
+      expect(vect).to eq arg
+    end
+  end
+
+  describe '#move' do
+    before do
+      @ini = [1.0, 2.0, 3.0]
+      @src = Positives.new(@ini)
+    end
+
+    it 'moves self in the meaning of m-parallel transportation' do
+      v = [1.0, 1.0]
+      @src.move(v)
+      expect(@src).to eq [1.0, 2.0 + 1.0, 3.0 + 1.0]
+    end
+    it 'ignores arg name' do
+      v = [2.0, 3.0]
+      name = 'name'
+      @src.move(v, name)
+      expect(@src).to eq [1.0, 2.0 + 2.0, 3.0 + 3.0]
+    end
+    it 'does not move self when v is 0' do
+      v = [0.0, 0.0]
+      @src.move(v)
+      expect(@src).to eq @ini
+    end
+  end
+
+  describe '#move_theta' do
+    before do
+      @ini = [1.0, 2.0, 3.0]
+      @src = Positives.new(@ini)
+    end
+
+    it 'moves self in the meaning of e-parallel transportation' do
+      v = [1.0, 1.0]
+      @src.move_theta(v)
+      expect(@src).to eq [1.0, 2.0 * Math.exp(2.0 * 1.0), 3.0 * Math.exp(3.0 * 1.0)]
+    end
+    it 'ignores arg name' do
+      v = [2.0, 3.0]
+      name = 'name'
+      @src.move_theta(v, name)
+      expect(@src).to eq [1.0, 2.0 * Math.exp(2.0 * 2.0), 3.0 * Math.exp(3.0 * 3.0)]
+    end
+    it 'does not move self when v is 0' do
+      v = [0.0, 0.0]
+      @src.move_theta(v)
+      expect(@src).to eq @ini
+    end
+  end
+
+  describe '#extend' do
+    before do
+      @ini = [1.0, 2.0, 3.0]
+      @src = Positives.new(@ini)
+    end
+
+    it 'extends self simply by adding extra 1.0' do
+      @src.extend(5)
+      expect(@src).to eq [1.0, 2.0, 3.0, 1.0, 1.0]
+    end
+    it 'raises exception when trg_size is less than self size' do
+      expect{ @src.extend(2) }.to raise_error(ArgumentError)
+    end
   end
 end
