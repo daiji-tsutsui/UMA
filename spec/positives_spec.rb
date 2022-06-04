@@ -25,16 +25,16 @@ RSpec.describe Positives do
       @src.move(v)
       expect(@src).to eq [1.0, 2.0 + 1.0, 3.0 + 1.0]
     end
-    it 'ignores arg name' do
-      v = [2.0, 3.0]
-      name = 'name'
-      @src.move(v, name)
-      expect(@src).to eq [1.0, 2.0 + 2.0, 3.0 + 3.0]
-    end
-    it 'does not move self when v is 0' do
+    it 'does not move self when v is zero' do
       v = [0.0, 0.0]
       @src.move(v)
       expect(@src).to eq @ini
+    end
+    it 'ignores the arg name' do
+      v = [2.0, 3.0]
+      name = 'name'
+      @src.move(v, name)
+      expect(warn).to eq nil
     end
   end
 
@@ -49,16 +49,16 @@ RSpec.describe Positives do
       @src.move_theta(v)
       expect(@src).to eq [1.0, 2.0 * Math.exp(2.0 * 1.0), 3.0 * Math.exp(3.0 * 1.0)]
     end
-    it 'ignores arg name' do
-      v = [2.0, 3.0]
-      name = 'name'
-      @src.move_theta(v, name)
-      expect(@src).to eq [1.0, 2.0 * Math.exp(2.0 * 2.0), 3.0 * Math.exp(3.0 * 3.0)]
-    end
     it 'does not move self when v is 0' do
       v = [0.0, 0.0]
       @src.move_theta(v)
       expect(@src).to eq @ini
+    end
+    it 'ignores the arg name' do
+      v = [2.0, 3.0]
+      name = 'name'
+      @src.move_theta(v, name)
+      expect(warn).to eq nil
     end
   end
 
