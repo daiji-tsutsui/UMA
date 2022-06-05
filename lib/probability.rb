@@ -1,3 +1,4 @@
+# Presentation for probability distributions
 class Probability < Array
 
   def initialize(w = [])
