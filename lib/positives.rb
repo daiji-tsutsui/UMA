@@ -1,3 +1,4 @@
+# Presentation for nonnegative distributions
 class Positives < Array
 
   def initialize(w = [])

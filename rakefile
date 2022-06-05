@@ -1,0 +1,7 @@
+task :test, [:case_name] do |task, args|
+  if args[:case_name].nil?
+    sh %{bundle exec rspec}
+  else
+    sh %{bundle exec rspec spec/#{args[:case_name]}_spec.rb}
+  end
+end
