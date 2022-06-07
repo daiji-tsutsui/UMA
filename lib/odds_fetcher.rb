@@ -2,6 +2,7 @@ require 'capybara'
 require 'selenium-webdriver'
 require './lib/jra/pages'
 
+# Object class which fetches odds data from JRA page
 class OddsFetcher
   attr_accessor :odds
 
