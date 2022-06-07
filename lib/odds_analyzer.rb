@@ -1,6 +1,7 @@
 require "./lib/probability"
 require "./lib/positives"
 
+# Object class for mathematical model for fitting time series of odds
 class OddsAnalyzer
   attr_accessor :t, :a, :b
   attr_accessor :ini_p
