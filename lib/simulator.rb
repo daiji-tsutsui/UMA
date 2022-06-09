@@ -1,11 +1,11 @@
-
+# Mock object for OddsFetcher and Scheduler
 class Simulator
   attr_accessor :odds         # 実行予定データキュー
   attr_accessor :sim_odds     # 実行済みデータキュー
   attr_accessor :next
 
-  def initialize(logger, odds)
-    @odds = odds
+  def initialize(logger, odds_list)
+    @odds = odds_list
     @sim_odds = []
     @logger = logger
     schedule

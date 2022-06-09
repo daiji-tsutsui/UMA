@@ -1,6 +1,6 @@
 require 'scheduler'
 
-TEN_MINUTES = 60 * 10
+SCHEDULER_SPEC_TEN_MINUTES = 60 * 10
 
 RSpec.describe Scheduler do
   before do
@@ -41,7 +41,7 @@ RSpec.describe Scheduler do
       @obj = Scheduler.new(@logger)
       expect(@obj.is_on_deadline).to be_truthy
     end
-    it 'returns false if more than 10 seconds till the next schedule' do
+    it 'returns false if more than 10 seconds before the next schedule' do
       allow(YAML).to receive(:load_file).with('schedule.yaml')
                                         .and_return(dummy_data2)
       @obj = Scheduler.new(@logger)
@@ -49,7 +49,7 @@ RSpec.describe Scheduler do
       expect(@obj.is_on_fire).to be_truthy      # fetch next
       expect(@obj.is_on_deadline).to be_falsey
     end
-    it 'returns true if less than 10 seconds till the next schedule' do
+    it 'returns true if less than 10 seconds before the next schedule' do
       allow(YAML).to receive(:load_file).with('schedule.yaml')
                                         .and_return(dummy_data3)
       @obj = Scheduler.new(@logger)
@@ -89,7 +89,7 @@ end
 def dummy_data2
   {
     'start' => Time.now,
-    'end' => Time.now + TEN_MINUTES,
+    'end' => Time.now + SCHEDULER_SPEC_TEN_MINUTES,
     'rule' => [
       { 'duration' => 400, 'interval' => 100 },
       { 'duration' => 200, 'interval' => 50 },
@@ -100,7 +100,7 @@ end
 def dummy_data3
   {
     'start' => Time.now,
-    'end' => Time.now + TEN_MINUTES,
+    'end' => Time.now + SCHEDULER_SPEC_TEN_MINUTES,
     'rule' => [
       { 'duration' => 400, 'interval' => 10 },
       { 'duration' => 200, 'interval' => 50 },
