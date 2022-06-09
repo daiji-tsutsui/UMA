@@ -1,3 +1,4 @@
+# Make instant summary and output to log file
 class ReportMaker
   attr_accessor :report
 
@@ -22,6 +23,7 @@ class ReportMaker
     @report
   end
 
+  #TODO be private
   def summarize_time_series
     col_num = @analyzer.a.size
     summary = columns_time_series(col_num)
@@ -30,6 +32,7 @@ class ReportMaker
     summary
   end
 
+  #TODO be private
   def summarize_horse_info(odds)
     col_num = @analyzer.t.size
     strat1 = @analyzer.strat(odds, 1.0)
