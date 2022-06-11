@@ -1,5 +1,6 @@
 require 'yaml'
 
+# Read and write odds stream data
 class DataManager
   attr_accessor :data
 
@@ -18,7 +19,9 @@ class DataManager
   end
 
   def save
-    YAML.dump(@data, File.open(@filename, 'w'))
+    file = File.open(@filename, 'w')
+    YAML.dump(@data, file)
+    file.close
   end
 
   def odds

@@ -1,6 +1,7 @@
 .DS_Store
 vendor/
 Gemfile.lock
-data/
+data/*
+!data/dummy_for_test.yml
 log/
 debug.rb

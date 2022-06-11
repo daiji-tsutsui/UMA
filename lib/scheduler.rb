@@ -1,10 +1,12 @@
 require 'yaml'
 
+# Read schedule.yaml and make schedule for fetching odds data
 class Scheduler
   attr_accessor :next
 
   def initialize(logger)
-    input = open('schedule.yaml', 'r') { |f| YAML.load(f) }
+    # input = open('schedule.yaml', 'r') { |f| YAML.load(f) }
+    input = YAML.load_file('schedule.yaml')
     @start = input['start']
     @end = input['end']
     @table = [@start]
@@ -32,6 +34,7 @@ class Scheduler
     @next = @table.shift
   end
 
+  #TODO privateでよくない？
   def get_new_rule(rules)
     rules.shift
   end
