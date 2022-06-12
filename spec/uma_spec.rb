@@ -46,9 +46,51 @@ RSpec.describe Uma do
   end
 
   describe '#learn' do
+    before do
+      until @obj.is_on_fire do sleep(1) end
+      @obj.run
+    end
+
+    it 'changes summarized flag' do
+      expect {
+        @obj.learn
+      }.to change{@obj.summarized}.from(false).to(true)
+    end
+
+    context 'without args' do
+      it 'adds an INFO log "Summary"' do
+        pat_info_summary = /INFO \-\- : Summary:/
+        expect {
+          @obj.learn
+        }.to change{is_included_in_log?(pat_info_summary)}.from(false).to(true)
+      end
+      it 'does not add an INFO log "Loss"' do
+        pat_info_loss = /INFO \-\- : Loss:/
+        @obj.learn
+        expect(is_included_in_log?(pat_info_loss)).to be_falsey
+      end
+    end
+
+    context 'with check_loss flag true' do
+      it 'adds an INFO log "Summary"' do
+        pat_info_summary = /INFO \-\- : Summary:/
+        expect {
+          @obj.learn(check_loss: true)
+        }.to change{is_included_in_log?(pat_info_summary)}.from(false).to(true)
+      end
+      it 'adds an INFO log "Loss"' do
+        pat_info_loss = /INFO \-\- : Loss:/
+        expect {
+          @obj.learn(check_loss: true)
+        }.to change{is_included_in_log?(pat_info_loss)}.from(false).to(true)
+      end
+    end
   end
 
   describe '#finalize' do
+    it 'returns false until the schedule is finished' do
+      expect(@obj.finalize).to be_falsey
+    end
   end
 end
 
