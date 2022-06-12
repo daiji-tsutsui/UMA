@@ -6,6 +6,7 @@ class OddsAnalyzer
 
   PROBABLE_EFFICIENCY = 0.05
   PROBABLE_GUARANTY = 0.6
+  PROBABLE_RETURN = 0.8
 
   attr_accessor :t, :a, :b
   attr_accessor :ini_p
@@ -79,11 +80,11 @@ class OddsAnalyzer
     gain_by_pay = @t.map.with_index { |r, i| [i, r * odds[i]] }.to_h
     gain_by_pay.delete_if { |key, val| @t[key] < PROBABLE_EFFICIENCY }
     gain_by_pay = gain_by_pay.sort_by { |_, v| v }
-    while gain_by_pay[0..-2].sum(0.0) { |e| e[1] } > PROBABLE_GUARANTY do
-      gain_by_pay.pop
+    while gain_by_pay[1..-1].sum(0.0) { |e| @t[e[0]] } > PROBABLE_GUARANTY do
+      gain_by_pay.shift
     end
-    result = Array.new(@t.size, 0.0)
-    gain_by_pay.to_h.each { |key, val| result[key] = val }
+    result = Array.new(odds.size, 0.0)
+    gain_by_pay.to_h.each { |key, val| result[key] = PROBABLE_RETURN / odds[key] }
     result
   end
 

@@ -1,4 +1,4 @@
-require 'probability'
+require "./lib/probability"
 
 # Make instant summary and output to log file
 class ReportMaker
