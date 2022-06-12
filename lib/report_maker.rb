@@ -1,3 +1,5 @@
+require 'probability'
+
 # Make instant summary and output to log file
 class ReportMaker
   attr_accessor :report
@@ -23,7 +25,8 @@ class ReportMaker
     @report
   end
 
-  #TODO be private
+  private
+
   def summarize_time_series
     col_num = @analyzer.a.size
     summary = columns_time_series(col_num)
@@ -32,67 +35,70 @@ class ReportMaker
     summary
   end
 
-  #TODO be private
   def summarize_horse_info(odds)
     col_num = @analyzer.t.size
-    strat1 = @analyzer.strat(odds, 1.0)
-    strat10 = @analyzer.strat(odds, 10.0)
     opt_odds = @analyzer.t.map { |r| JRA_RETURN_RATE / r }
     summary = columns_horse_info(col_num)
     summary += row_horse_info(@analyzer.t, col_num, 'probability', format: "%9.5f")
     summary += row_horse_info(odds, col_num, 'current odds', format: "%9.1f")
     summary += row_horse_info(opt_odds, col_num, 'optimal odds', format: "%9.1f")
-    summary += row_horse_info(strat1, col_num, 'weak strat',
+    summary += row_horse_info(@analyzer.strat(odds, 1.0),
+                              col_num,
+                              'weak strat',
                               format: "%9.5f",
                               f: @analyzer.t.map.with_index { |r, i| r * odds[i] })
-    summary += row_horse_info(strat10, col_num, 'strong strat',
+    summary += row_horse_info(@analyzer.strat(odds, 10.0),
+                              col_num,
+                              'strong strat',
                               format: "%9.5f",
                               f: @analyzer.t.map.with_index { |r, i| r * odds[i] })
+    summary += row_horse_info(@analyzer.probable_strat(odds),
+                              col_num,
+                              'probable st.',
+                              format: "%9.5f")
     summary
   end
 
-  private
-
-    def columns_time_series(col_num, format: FORMAT_D_TIME)
-      columns = "time".rjust(LABEL_STRLEN_TIME) + " |"
-      col_num.times do |i|
-        columns += sprintf(format, i) + " |"
-      end
-      columns += "\n"
-      columns += columns.gsub(/[^\|\n]/, '-').gsub(/\|/, '+')
-      columns
+  def columns_time_series(col_num, format: FORMAT_D_TIME)
+    columns = "time".rjust(LABEL_STRLEN_TIME) + " |"
+    col_num.times do |i|
+      columns += sprintf(format, i) + " |"
     end
+    columns += "\n"
+    columns += columns.gsub(/[^\|\n]/, '-').gsub(/\|/, '+')
+    columns
+  end
 
-    def row_time_series(array, col_num, label, format: FORMAT_F_TIME)
-      row = label.rjust(LABEL_STRLEN_TIME) + " |"
-      col_num.times do |i|
-        row += sprintf(format, array[i]) + " |"
-      end
-      row += "\n"
-      row
+  def row_time_series(array, col_num, label, format: FORMAT_F_TIME)
+    row = label.rjust(LABEL_STRLEN_TIME) + " |"
+    col_num.times do |i|
+      row += sprintf(format, array[i]) + " |"
     end
+    row += "\n"
+    row
+  end
 
-    def columns_horse_info(col_num, format: FORMAT_D_HORSE)
-      columns = "horse".rjust(LABEL_STRLEN_HORSE) + " |"
-      col_num.times do |i|
-        columns += sprintf(format, i + 1) + " |"
-      end
-      columns += "expect".rjust(9)
-      columns += "\n"
-      columns += columns.gsub(/[^\|\n]/, '-').gsub(/\|/, '+')
-      columns
+  def columns_horse_info(col_num, format: FORMAT_D_HORSE)
+    columns = "horse".rjust(LABEL_STRLEN_HORSE) + " |"
+    col_num.times do |i|
+      columns += sprintf(format, i + 1) + " |"
     end
+    columns += "expect".rjust(9)
+    columns += "\n"
+    columns += columns.gsub(/[^\|\n]/, '-').gsub(/\|/, '+')
+    columns
+  end
 
-    def row_horse_info(array, col_num, label, format: FORMAT_F_HORSE, f: nil)
-      row = label.rjust(LABEL_STRLEN_HORSE) + " |"
-      col_num.times do |i|
-        row += sprintf(format, array[i]) + " |"
-      end
-      if array.instance_of?(Probability) && !f.nil?
-        row += sprintf("%9.5f", array.expectation(f))
-      end
-      row += "\n"
-      row
+  def row_horse_info(array, col_num, label, format: FORMAT_F_HORSE, f: nil)
+    row = label.rjust(LABEL_STRLEN_HORSE) + " |"
+    col_num.times do |i|
+      row += sprintf(format, array[i]) + " |"
     end
+    if array.instance_of?(Probability) && !f.nil?
+      row += sprintf("%9.5f", array.expectation(f))
+    end
+    row += "\n"
+    row
+  end
 
 end

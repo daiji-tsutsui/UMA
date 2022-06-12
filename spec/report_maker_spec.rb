@@ -9,6 +9,7 @@ RSpec.describe ReportMaker do
     allow(@analyzer).to receive(:b).and_return(dummy_b)
     allow(@analyzer).to receive(:t).and_return(dummy_t)
     allow(@analyzer).to receive(:strat).and_return(dummy_strat)
+    allow(@analyzer).to receive(:probable_strat).and_return(dummy_pstrat)
   end
 
   describe '#new' do
@@ -27,19 +28,20 @@ RSpec.describe ReportMaker do
 
     it 'gives a simple prefix' do
       @obj.summarize(@odds)
-      expect(@obj.report).to match /Summary:\n\n/
+      expect(@obj.report).to match /\ASummary:\n\n/
     end
     it 'gives necessary terms' do
       @obj.summarize(@odds)
-      expect(@obj.report).to match /time/
-      expect(@obj.report).to match /weight/
-      expect(@obj.report).to match /certainty/
-      expect(@obj.report).to match /horse/
-      expect(@obj.report).to match /probability/
-      expect(@obj.report).to match /current odds/
-      expect(@obj.report).to match /optimal odds/
-      expect(@obj.report).to match /weak strat/
-      expect(@obj.report).to match /strong strat/
+      expect(@obj.report).to match /^      time \|/
+      expect(@obj.report).to match /^    weight \|/
+      expect(@obj.report).to match /^ certainty \|/
+      expect(@obj.report).to match /^         horse \|/
+      expect(@obj.report).to match /^   probability \|/
+      expect(@obj.report).to match /^  current odds \|/
+      expect(@obj.report).to match /^  optimal odds \|/
+      expect(@obj.report).to match /^    weak strat \|/
+      expect(@obj.report).to match /^  strong strat \|/
+      expect(@obj.report).to match /^  probable st. \|/
     end
   end
 end
@@ -58,4 +60,8 @@ end
 
 def dummy_strat
   [0.3, 0.4, 0.3]
+end
+
+def dummy_pstrat
+  [0.3, 0.4, 0.0]
 end

@@ -171,4 +171,22 @@ RSpec.describe OddsAnalyzer do
       end
     end
   end
+
+  describe '#probable_strat' do
+    before do
+      @odds_list = [
+        [3.2,  3.2,  1.6],
+        [4.0,  2.67, 1.6],
+        [5.33, 2.67, 1.45],
+      ]
+      @obj = OddsAnalyzer.new
+      @obj.forecast(@odds_list)
+    end
+
+    it 'gives an array' do
+      res = @obj.probable_strat(@odds_list[-1])
+      expect(res.size).to eq 3
+      expect(res).not_to eq [0.0, 0.0, 0.0]
+    end
+  end
 end

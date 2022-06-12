@@ -3,6 +3,10 @@ require "./lib/positives"
 
 # Object class for mathematical model for fitting time series of odds
 class OddsAnalyzer
+
+  PROBABLE_EFFICIENCY = 0.05
+  PROBABLE_GUARANTY = 0.6
+
   attr_accessor :t, :a, :b
   attr_accessor :ini_p
   attr_accessor :model, :blueprint
@@ -61,6 +65,7 @@ class OddsAnalyzer
     end
   end
 
+  #TODO private?
   def strategy(odds, t, b)
     w = t.map.with_index { |r, i| Math.exp(r * odds[i] * b) }
     Probability.new(w)
@@ -70,6 +75,17 @@ class OddsAnalyzer
     strategy(odds, @t, b)
   end
 
+  def probable_strat(odds)
+    gain_by_pay = @t.map.with_index { |r, i| [i, r * odds[i]] }.to_h
+    gain_by_pay.delete_if { |key, val| @t[key] < PROBABLE_EFFICIENCY }
+    gain_by_pay = gain_by_pay.sort_by { |_, v| v }
+    while gain_by_pay[0..-2].sum(0.0) { |e| e[1] } > PROBABLE_GUARANTY do
+      gain_by_pay.pop
+    end
+    result = Array.new(@t.size, 0.0)
+    gain_by_pay.to_h.each { |key, val| result[key] = val }
+    result
+  end
 
   private
 
