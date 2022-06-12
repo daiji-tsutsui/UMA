@@ -5,3 +5,7 @@ task :test, [:case_name] do |task, args|
     sh %{bundle exec rspec spec/#{args[:case_name]}_spec.rb}
   end
 end
+
+task :run do
+  sh %{bundle exec ruby main.rb}
+end
