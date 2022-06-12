@@ -8,6 +8,7 @@ class Simulator
     @odds = odds_list
     @sim_odds = []
     @logger = logger
+    @first_wait = (ENV['SIMULATOR_FIRST_WAIT'] || 60).to_i
     schedule
   end
 
@@ -51,7 +52,7 @@ class Simulator
 
   def schedule
     start = @odds[0][:at]
-    inc = Time.now + 60 - start
+    inc = Time.now + @first_wait - start
     @table = @odds.map { |record| record[:at] + inc }
     @start = @table[0]
     @end = @table[-1] + 20

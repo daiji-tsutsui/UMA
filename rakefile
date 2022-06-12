@@ -7,5 +7,6 @@ task :test, [:case_name] do |task, args|
 end
 
 task :run do
+  sh %{source env.sh}
   sh %{bundle exec ruby main.rb}
 end
