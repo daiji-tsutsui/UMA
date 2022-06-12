@@ -177,7 +177,6 @@ RSpec.describe OddsAnalyzer do
       @odds_list = [
         [3.2,  3.2,  1.6],
         [4.0,  2.67, 1.6],
-        [5.33, 2.67, 1.45],
       ]
       @obj = OddsAnalyzer.new
       @obj.forecast(@odds_list)
@@ -187,6 +186,7 @@ RSpec.describe OddsAnalyzer do
       res = @obj.probable_strat(@odds_list[-1])
       expect(res.size).to eq 3
       expect(res).not_to eq [0.0, 0.0, 0.0]
+      expect(res.sum < 1.0).to be_truthy
     end
   end
 end
