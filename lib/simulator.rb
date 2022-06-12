@@ -49,21 +49,21 @@ class Simulator
 
   private
 
-    def schedule
-      start = @odds[0][:at]
-      inc = Time.now + 60 - start
-      @table = @odds.map { |record| record[:at] + inc }
-      @start = @table[0]
-      @end = @table[-1] + 20
-      @next = @table.shift
-    end
+  def schedule
+    start = @odds[0][:at]
+    inc = Time.now + 60 - start
+    @table = @odds.map { |record| record[:at] + inc }
+    @start = @table[0]
+    @end = @table[-1] + 20
+    @next = @table.shift
+  end
 
-    def log
-      odds = @sim_odds[-1]
-      unless odds.nil?
-        return "Got odds: #{odds[:data]}"
-      end
-      "Simulator has no odds!!"
+  def log
+    odds = @sim_odds[-1]
+    unless odds.nil?
+      return "Got odds: #{odds[:data]}"
     end
+    "Simulator has no odds!!"
+  end
 
 end

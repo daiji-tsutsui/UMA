@@ -14,7 +14,7 @@ class DataManager
     end
     @data = []
     if File.exist? @filename
-      @data = open(@filename, 'r') { |f| YAML.load(f) }
+      @data = YAML.load_file(@filename)
     end
   end
 

@@ -6,6 +6,7 @@ require "./lib/odds_analyzer"
 require "./lib/odds_fetcher"
 require "./lib/simulator"
 
+# Wrapper class which integrates the object classes above
 class Uma
   attr_accessor :converge, :summarized
 
@@ -49,6 +50,7 @@ class Uma
     end
   end
 
+  #TODO private?
   def summarize(force: false)
     if force || !@summarized
       @summarizer.summarize(@odds_list[-1])
@@ -78,33 +80,34 @@ class Uma
     @odds_list.size > 1 && !@scheduler.is_on_deadline && !@converge
   end
 
+  #TODO private?
   def save
     @manager.save unless @simulate
   end
 
   private
 
-    def init_flags
-      @converge = false
-      @summarized = false
-    end
+  def init_flags
+    @converge = false
+    @summarized = false
+  end
 
-    def init_params
-      init_flags
-      @prev_loss = 0.0
-    end
+  def init_params
+    init_flags
+    @prev_loss = 0.0
+  end
 
-    def get_odds
-      @odds_list = (@simulate ? @fetcher.get_odds : @manager.odds)
-      save
-    end
+  def get_odds
+    @odds_list = (@simulate ? @fetcher.get_odds : @manager.odds)
+    save
+  end
 
-    def check_conv(loss)
-      if (loss - @prev_loss).abs < 1e-5
-        @converge = true
-        @logger.info "Fitting converges!"
-        return true
-      end
-      false
+  def check_conv(loss)
+    if (loss - @prev_loss).abs < 1e-5
+      @converge = true
+      @logger.info "Fitting converges!"
+      return true
     end
+    false
+  end
 end
