@@ -186,7 +186,12 @@ RSpec.describe OddsAnalyzer do
       res = @obj.probable_strat(@odds_list[-1])
       expect(res.size).to eq 3
       expect(res).not_to eq [0.0, 0.0, 0.0]
-      expect(res.sum < 1.0).to be_truthy
+      expect(total_without_nil(res) > OddsAnalyzer::PROBABLE_GUARANTY).to be_truthy
+      expect(total_without_nil(res) < 1.0).to be_truthy
     end
   end
+end
+
+def total_without_nil(array)
+  array.sum(0.0) { |e| e.nil? ? 0.0 : e }
 end

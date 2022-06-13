@@ -7,6 +7,6 @@ task :test, [:case_name] do |task, args|
 end
 
 task :run do
-  sh %{source env.sh}
+  ENV['SIMULATOR_FIRST_WAIT'] = '10'
   sh %{bundle exec ruby main.rb}
 end

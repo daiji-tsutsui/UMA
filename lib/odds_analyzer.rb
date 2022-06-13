@@ -79,11 +79,11 @@ class OddsAnalyzer
   def probable_strat(odds)
     gain_by_pay = @t.map.with_index { |r, i| [i, r * odds[i]] }.to_h
     gain_by_pay.delete_if { |key, val| @t[key] < PROBABLE_EFFICIENCY }
-    gain_by_pay = gain_by_pay.sort_by { |_, v| v }
+    gain_by_pay = gain_by_pay.sort { |a, b| a[1]<=>b[1] }
     while gain_by_pay[1..-1].sum(0.0) { |e| @t[e[0]] } > PROBABLE_GUARANTY do
       gain_by_pay.shift
     end
-    result = Array.new(odds.size, 0.0)
+    result = Array.new(odds.size, nil)
     gain_by_pay.to_h.each { |key, val| result[key] = PROBABLE_RETURN / odds[key] }
     result
   end

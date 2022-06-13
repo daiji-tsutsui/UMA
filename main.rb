@@ -8,8 +8,8 @@ uma = Uma.new(
   race:       Jra::RACE_11,
   datafile:   'EpsomCup',
   duplicate:  false,        # true: オッズの更新がなくても取得する
-  simulate:   false,
-  simfile:    '20211227_test1'
+  simulate:   true,
+  simfile:    '20220612_EpsomCup'
 )
 
 count = 0

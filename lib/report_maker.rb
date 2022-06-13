@@ -9,6 +9,7 @@ class ReportMaker
   LABEL_STRLEN_TIME = 10
   FORMAT_D_HORSE = "%9d"
   FORMAT_F_HORSE = "%9.5f"
+  FORMAT_STRLEN_HORSE = 9
   LABEL_STRLEN_HORSE = 14
   JRA_RETURN_RATE = 0.8
 
@@ -92,7 +93,11 @@ class ReportMaker
   def row_horse_info(array, col_num, label, format: FORMAT_F_HORSE, f: nil)
     row = label.rjust(LABEL_STRLEN_HORSE) + " |"
     col_num.times do |i|
-      row += sprintf(format, array[i]) + " |"
+      if array[i].nil?
+        row += ' ' * FORMAT_STRLEN_HORSE + " |"
+      else
+        row += sprintf(format, array[i]) + " |"
+      end
     end
     if array.instance_of?(Probability) && !f.nil?
       row += sprintf("%9.5f", array.expectation(f))
