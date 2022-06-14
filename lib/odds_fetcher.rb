@@ -4,20 +4,21 @@ require './lib/jra/pages'
 
 # Object class which fetches odds data from JRA page
 class OddsFetcher
+
   attr_accessor :odds
 
   def initialize(**options)
     @odds = []
-    @driver = options[:driver]  || :selenium_chrome_headless
-    @day    = options[:day]     || Jra::SUNDAY
-    @course = options[:course]  || '阪神'
-    @race   = options[:race]    || Jra::RACE_1
-    @duplicate = options[:duplicate] || false
+    @driver     = options[:driver]    || :selenium_chrome_headless
+    @day        = options[:day]       || Jra::SUNDAY
+    @course     = options[:course]    || '阪神'
+    @race       = options[:race]      || Jra::RACE_11
+    @duplicate  = options[:duplicate] || false
   end
 
-  def run
-    Capybara.default_driver = @driver
+  def fetch_new_odds
     fetched = false
+    Capybara.default_driver = @driver
     Capybara::Session.new(@driver).tap do |s|
       # トップページ
       top_page = Jra::TopPage.new
@@ -36,15 +37,23 @@ class OddsFetcher
         fetched = true
       end
     end
-    fetched ? log : "Same odds! Skipped!"
+    fetched ? make_log : "Same odds! Skipped!"
   end
 
-  def log
+  # DataManagerと同期する
+  #TODO わかりづらいからインスタンスを共有するのはやめた方がいい
+  # DataManagerを親として，DataManagerに最新のオッズを渡すようにすべき
+  def sync_data(data_store)
+    odds = data_store
+  end
+
+  private
+
+  def make_log
     odds = @odds[-1]
-    unless odds.nil?
-      return "Got odds: #{odds[:data]}"
+    if odds.nil?
+      return "Fetcher has no odds!!"
     end
-    "Fetcher has no odds!!"
+    "Got odds: #{odds[:data]}"
   end
-
 end
