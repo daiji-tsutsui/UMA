@@ -35,8 +35,8 @@ RSpec.describe OddsAnalyzer do
         b1, b2 = 1.0, 2.0
         res1 = @obj.strategy(@odds, @t, b1)
         res2 = @obj.strategy(@odds, @t, b2)
-        gain1 = @t.expectation(res1.map.with_index { |v, i| v * @odds[i] })
-        gain2 = @t.expectation(res2.map.with_index { |v, i| v * @odds[i] })
+        gain1 = @t.expectation(res1.schur(@odds))
+        gain2 = @t.expectation(res2.schur(@odds))
         expect(gain1 < gain2).to be_truthy
       end
       it 'with larger b gives more peaky distribution' do
@@ -58,8 +58,8 @@ RSpec.describe OddsAnalyzer do
         b1, b2 = 1.0, 2.0
         res1 = @obj.strategy(@odds, @t, b1)
         res2 = @obj.strategy(@odds, @t, b2)
-        gain1 = @t.expectation(res1.map.with_index { |v, i| v * @odds[i] })
-        gain2 = @t.expectation(res2.map.with_index { |v, i| v * @odds[i] })
+        gain1 = @t.expectation(res1.schur(@odds))
+        gain2 = @t.expectation(res2.schur(@odds))
         expect(gain1).to eq RETURN_RATE
         expect(gain2).to eq RETURN_RATE
       end

@@ -145,7 +145,7 @@ RSpec.describe Probability do
         expect(@vect.sum).to eq 1.0
       end
       it 'gives the inverse ratio of arg' do
-        prod = @vect.map.with_index { |v, i| v * @arg[i] }
+        prod = @vect.schur(@arg)
         expect(prod[0]).to within(1e-6).of(prod[1])
         expect(prod[0]).to within(1e-6).of(prod[-1])
       end

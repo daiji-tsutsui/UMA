@@ -47,12 +47,12 @@ class ReportMaker
                               col_num,
                               'weak strat',
                               format: "%9.5f",
-                              f: @analyzer.t.map.with_index { |r, i| r * odds[i] })
+                              f: @analyzer.t.schur(odds))
     summary += row_horse_info(@analyzer.strat(odds, 10.0),
                               col_num,
                               'strong strat',
                               format: "%9.5f",
-                              f: @analyzer.t.map.with_index { |r, i| r * odds[i] })
+                              f: @analyzer.t.schur(odds))
     summary += row_horse_info(@analyzer.probable_strat(odds),
                               col_num,
                               'probable st.',

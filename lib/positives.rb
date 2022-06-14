@@ -25,4 +25,14 @@ class Positives < Array
     ext = Array.new(trg_size - self.size, 1.0)
     self.concat(ext)
   end
+
+  # Schur product a.k.a. Hadamard or element-wise product
+  def schur(array)
+    self.map.with_index { |r, i| r * array[i] }
+  end
+
+  # Inner-product
+  def dot(array)
+    self.schur(array).sum
+  end
 end

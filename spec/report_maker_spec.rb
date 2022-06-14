@@ -47,19 +47,19 @@ RSpec.describe ReportMaker do
 end
 
 def dummy_a
-  [0.25, 0.25, 0.25, 0.25]
+  Probability.new([0.25, 0.25, 0.25, 0.25])
 end
 
 def dummy_b
-  [1.0, 1.0, 1.0, 1.0]
+  Positives.new([1.0, 1.0, 1.0, 1.0])
 end
 
 def dummy_t
-  [0.2, 0.3, 0.5]
+  Probability.new([0.2, 0.3, 0.5])
 end
 
 def dummy_strat
-  [0.3, 0.4, 0.3]
+  Probability.new([0.3, 0.4, 0.3])
 end
 
 def dummy_pstrat

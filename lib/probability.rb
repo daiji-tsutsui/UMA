@@ -1,15 +1,16 @@
+require './lib/positives'
+
 # Presentation for probability distributions
-class Probability < Array
+class Probability < Positives
 
   def initialize(w = [])
-    self.concat(w)
-    self.concat([1.0]) if self.empty?
+    super(w)
     normalize
   end
 
   def kl_div(q)
     f = self.map.with_index { |p_i, i| Math.log(p_i) - Math.log(q[i]) }
-    expectation(f)
+    self.expectation(f)
   end
 
   # v: eta-vector
@@ -43,7 +44,7 @@ class Probability < Array
   end
 
   def expectation(f)
-    self.map.with_index { |r, i| r * f[i] }.sum
+    self.dot(f)
   end
 
   def check(name = nil)

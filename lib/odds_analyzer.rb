@@ -68,7 +68,8 @@ class OddsAnalyzer
 
   #TODO private?
   def strategy(odds, t, b)
-    w = t.map.with_index { |r, i| Math.exp(r * odds[i] * b) }
+    exp_gain = t.schur(odds)
+    w = exp_gain.map { |r| Math.exp(r * b) }
     Probability.new(w)
   end
 
@@ -77,7 +78,7 @@ class OddsAnalyzer
   end
 
   def probable_strat(odds)
-    gain_by_pay = @t.map.with_index { |r, i| [i, r * odds[i]] }.to_h
+    gain_by_pay = @t.schur(odds).map.with_index { |r, i| [i, r] }.to_h
     gain_by_pay.delete_if { |key, val| @t[key] < PROBABLE_EFFICIENCY }
     gain_by_pay = gain_by_pay.sort { |a, b| a[1]<=>b[1] }
     while gain_by_pay[1..-1].sum(0.0) { |e| @t[e[0]] } > PROBABLE_GUARANTY do
@@ -151,7 +152,7 @@ class OddsAnalyzer
     end
 
     def grad_b_for_instant(p, teacher, strat, a, odds)
-      f1 = @t.map.with_index { |ti, i| ti * odds[i] }
+      f1 = @t.schur(odds)
       exp_f1 = strat.expectation(f1)
       f2 = p.map.with_index { |p_i, i| a * strat[i] * (f1[i] - exp_f1) / p_i }
       -teacher.expectation(f2)
