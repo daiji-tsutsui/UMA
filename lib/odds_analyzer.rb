@@ -93,8 +93,8 @@ class OddsAnalyzer
     def adjust_params(odds_list)
       @ini_p ||= Probability.new_from_odds(odds_list[0])
       @t ||= @ini_p.clone
-      @a.extend(odds_list.size) if @a.size < odds_list.size
-      @b.extend(odds_list.size) if @b.size < odds_list.size
+      @a.extend_to!(odds_list.size) if @a.size < odds_list.size
+      @b.extend_to!(odds_list.size) if @b.size < odds_list.size
     end
 
     def check_params(addition = [])
@@ -108,19 +108,19 @@ class OddsAnalyzer
     def update_a(p, odds_list)
       da = grad_a(p, odds_list)
       v = da.map { |da_i| -@eps * da_i }
-      @a.move_theta(v, 'a')
+      @a.move_in_theta!(v, 'a')
     end
 
     def update_b(p, odds_list)
       db = grad_b(p, odds_list)
       v = db.map { |db_i| -@eps * db_i }
-      @b.move_theta(v, 'b')
+      @b.move_in_theta!(v, 'b')
     end
 
     def update_t(p, odds_list)
       dt = grad_t(p, odds_list)
       v = dt.map { |dt_i| -@eps * dt_i }
-      @t.move_theta(v, 'b')
+      @t.move_in_theta!(v, 'b')
     end
 
     def grad_a(p, odds_list)

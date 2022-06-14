@@ -13,7 +13,7 @@ class Probability < Array
   end
 
   # v: eta-vector
-  def move(v, name = nil)
+  def move!(v, name = nil)
     v.each.with_index(1) do |v_i, i|
       self[i] += v_i
       self[0] -= v_i
@@ -24,7 +24,7 @@ class Probability < Array
   end
 
   # v: eta-vector
-  def move_theta(v, name = nil)
+  def move_in_theta!(v, name = nil)
     v_theta = fisher.map do |row|
       row.map.with_index { |entry, j| entry * v[j] }.sum
     end
@@ -35,7 +35,7 @@ class Probability < Array
     nil
   end
 
-  def extend(trg_size)
+  def extend_to!(trg_size)
     self.map! { |p_i| p_i * self.size.to_f / trg_size.to_f }
     ext = Array.new(trg_size - self.size, 1.0 / trg_size.to_f)
     self.concat(ext)

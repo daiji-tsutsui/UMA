@@ -6,14 +6,14 @@ class Positives < Array
     self.concat([1.0]) if self.empty?
   end
 
-  def move(v, name = nil)
+  def move!(v, name = nil)
     v.each.with_index(1) do |v_i, i|
       self[i] += v_i
     end
     nil
   end
 
-  def move_theta(v, name = nil)
+  def move_in_theta!(v, name = nil)
     v_theta = v.map.with_index(1) { |v_i, i| self[i] * v_i }
     v_theta.each.with_index(1) do |v_i, i|
       self[i] *= Math.exp(v_i)
@@ -21,7 +21,7 @@ class Positives < Array
     nil
   end
 
-  def extend(trg_size)
+  def extend_to!(trg_size)
     ext = Array.new(trg_size - self.size, 1.0)
     self.concat(ext)
   end
