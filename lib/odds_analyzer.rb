@@ -55,7 +55,7 @@ class OddsAnalyzer
         update_b(p, odds_list),
       ]
     end
-    check_params(warnings)
+    validate_params(warnings)
   end
 
   def loss(odds_list, with_forecast: false)
@@ -98,8 +98,8 @@ class OddsAnalyzer
       @b.extend_to!(odds_list.size) if @b.size < odds_list.size
     end
 
-    def check_params(addition = [])
-      warnings = @a.check('a') + @t.check('t') + addition
+    def validate_params(addition = [])
+      warnings = @a.validate('a') + @t.validate('t') + addition
       warnings.each do |warn|
         next if warn.nil?
         @logger.nil? ? puts("[WARN][#{Time.new}] #{warn}") : @logger.warn(warn)

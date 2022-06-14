@@ -8,18 +8,13 @@ class Probability < Positives
     normalize
   end
 
-  def kl_div(q)
-    f = self.map.with_index { |p_i, i| Math.log(p_i) - Math.log(q[i]) }
-    self.expectation(f)
-  end
-
   # v: eta-vector
   def move!(v, name = nil)
     v.each.with_index(1) do |v_i, i|
       self[i] += v_i
       self[0] -= v_i
     end
-    warn = check_total(name)
+    warn = validate_total(name)
     normalize
     warn
   end
@@ -47,10 +42,15 @@ class Probability < Positives
     self.dot(f)
   end
 
-  def check(name = nil)
+  def kl_div(q)
+    f = self.map.with_index { |p_i, i| Math.log(p_i) - Math.log(q[i]) }
+    self.expectation(f)
+  end
+
+  def validate(name = nil)
     [
-      check_negative(name),
-      check_total(name),
+      validate_negative(name),
+      validate_total(name),
     ]
   end
 
@@ -74,7 +74,7 @@ class Probability < Positives
       self.map! { |r| r / total }
     end
 
-    def check_negative(name = nil)
+    def validate_negative(name = nil)
       warn = nil
       self.each do |p_i|
         if p_i < 0
@@ -85,7 +85,7 @@ class Probability < Positives
       warn
     end
 
-    def check_total(name = nil)
+    def validate_total(name = nil)
       if (self.sum - 1.0).abs > 0.05
         "Probability \'#{name}\' is maybe not normalized"
       end
