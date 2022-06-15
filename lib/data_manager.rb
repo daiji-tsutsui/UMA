@@ -9,15 +9,13 @@ class DataManager
   def initialize(filename, **options)
     base_path = options[:base_path] || './data'
     simulate = options[:simulate] || false
-    unless simulate
-      @filename = "#{base_path}/#{Time.now.strftime("%Y%m%d")}_#{filename}.yml"
-    else
-      @filename = "#{base_path}/#{filename}.yml"
-    end
+    @filename = if simulate
+                  "#{base_path}/#{filename}.yml"
+                else
+                  "#{base_path}/#{Time.now.strftime('%Y%m%d')}_#{filename}.yml"
+                end
     @data = []
-    if File.exist? @filename
-      @data = YAML.load_file(@filename)
-    end
+    @data = YAML.load_file(@filename) if File.exist? @filename
   end
 
   def save

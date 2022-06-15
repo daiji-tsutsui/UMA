@@ -11,7 +11,7 @@ RSpec.describe DataManager do
         expect(obj.data).to eq []
       end
       it 'reads data file for an ongoing stream' do
-        filename = "./data/#{Time.now.strftime("%Y%m%d")}_ongoing_stream.yml"
+        filename = "./data/#{Time.now.strftime('%Y%m%d')}_ongoing_stream.yml"
         FileUtils.cp('./data/dummy_for_test.yml', filename)
         obj = DataManager.new('ongoing_stream')
         expect(obj.data[0][:at].to_s).to eq '2021-12-15 02:09:42 +0900'
@@ -39,7 +39,7 @@ RSpec.describe DataManager do
         at: Time.local(1993, 4, 17),
         data: [4.0, 4.0, 2.0],
       })
-      @filename = "./data/#{Time.now.strftime("%Y%m%d")}_save_test.yml"
+      @filename = "./data/#{Time.now.strftime('%Y%m%d')}_save_test.yml"
     end
     after do
       FileUtils.rm(@filename)
@@ -47,7 +47,7 @@ RSpec.describe DataManager do
 
     it 'writes data into a file' do
       @obj.save
-      expect(File.exist? @filename).to be_truthy
+      expect(File.exist?(@filename)).to be_truthy
     end
     it 'writes correct data' do
       @obj.save

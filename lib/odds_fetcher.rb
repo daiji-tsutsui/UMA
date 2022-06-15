@@ -6,7 +6,6 @@ require './lib/jra/pages'
 
 # Object class which fetches odds data from JRA page
 class OddsFetcher
-
   attr_accessor :odds
 
   def initialize(logger, **options)
@@ -22,7 +21,7 @@ class OddsFetcher
   def fetch_new_odds
     fetched = false
     Capybara.default_driver = @driver
-    Capybara::Session.new(@driver).tap do |s|
+    Capybara::Session.new(@driver).tap do
       # トップページ
       top_page = Jra::TopPage.new
       top_page.load
