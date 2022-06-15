@@ -16,7 +16,7 @@ class Scheduler
 
     indicator = @start.clone
     rule = input['rule'].shift
-    while true do
+    while true
       if !rule['until'].nil?
         if indicator >= rule['until']
           rule = get_new_rule(input['rule'])
@@ -36,7 +36,7 @@ class Scheduler
     @next = @table.shift
   end
 
-  #TODO privateでよくない？
+  # TODO: privateでよくない？
   def get_new_rule(rules)
     rules.shift
   end

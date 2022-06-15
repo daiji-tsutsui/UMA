@@ -15,11 +15,11 @@ class Simulator
   end
 
   def run
-    if @odds.size > 0
+    if !@odds.empty?
       current = @odds.shift
       @sim_odds.push current
     else
-      @logger.warn "Simulator has no odds data in exe queue"
+      @logger.warn 'Simulator has no odds data in exe queue'
     end
     log
   end
@@ -40,9 +40,8 @@ class Simulator
   end
 
   def is_on_deadline
-    if Time.now > @next - 10
-      return true
-    end
+    return true if Time.now > @next - 10
+
     false
   end
 
@@ -63,10 +62,9 @@ class Simulator
 
   def log
     odds = @sim_odds[-1]
-    unless odds.nil?
-      return "Got odds: #{odds[:data]}"
-    end
-    "Simulator has no odds!!"
+    return "Got odds: #{odds[:data]}" unless odds.nil?
+
+    'Simulator has no odds!!'
   end
 
 end

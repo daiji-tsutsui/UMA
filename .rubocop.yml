@@ -13,6 +13,7 @@ Naming/MethodParameterName:
   Exclude:
     - lib/probability.rb
     - lib/positives.rb
+    - lib/odds_analyzer.rb
 Naming/AccessorMethodName:
   Exclude:
     - lib/jra/pages.rb

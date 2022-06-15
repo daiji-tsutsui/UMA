@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require 'logger'
-require "./lib/report_maker"
-require "./lib/data_manager"
-require "./lib/scheduler"
-require "./lib/odds_analyzer"
-require "./lib/odds_fetcher"
-require "./lib/simulator"
+require './lib/report_maker'
+require './lib/data_manager'
+require './lib/scheduler'
+require './lib/odds_analyzer'
+require './lib/odds_fetcher'
+require './lib/simulator'
 
 # Wrapper class which integrates the object classes above
 class Uma
@@ -14,17 +14,17 @@ class Uma
 
   def initialize(**options)
     @simulate = options[:simulate]
-    unless @simulate
-      @manager = DataManager.new(options[:datafile])
-      @logger = Logger.new("./log/#{Time.now.strftime("%Y%m%d_%H%M")}.log")
-      #TODO options渡すのよくない
-      @fetcher = OddsFetcher.new(@logger, options)
-      @scheduler = Scheduler.new(@logger)
-    else
+    if @simulate
       @manager = DataManager.new(options[:simfile], simulate: true)
-      @logger = Logger.new("./log/#{Time.now.strftime("%Y%m%d_%H%M")}_#{options[:simfile]}.log")
+      @logger = Logger.new("./log/#{Time.now.strftime('%Y%m%d_%H%M')}_#{options[:simfile]}.log")
       @fetcher = Simulator.new(@logger, @manager.data)
       @scheduler = @fetcher
+    else
+      @manager = DataManager.new(options[:datafile])
+      @logger = Logger.new("./log/#{Time.now.strftime('%Y%m%d_%H%M')}.log")
+      # TODO: options渡すのよくない
+      @fetcher = OddsFetcher.new(@logger, options)
+      @scheduler = Scheduler.new(@logger)
     end
     @analyzer = OddsAnalyzer.new(@logger)
     @summarizer = ReportMaker.new(@analyzer, @logger)
@@ -35,7 +35,7 @@ class Uma
   end
 
   def run
-    #TODO fetch_new_oddsにできれば統一したい（無理なら構わない）
+    # TODO: fetch_new_oddsにできれば統一したい（無理なら構わない）
     if @simulate
       result = @fetcher.run
       @logger.info result unless result.nil?
@@ -58,7 +58,7 @@ class Uma
     end
   end
 
-  #TODO private?
+  # TODO: private?
   def summarize(force: false)
     if force || !@summarized
       @summarizer.summarize(@odds_list[-1])
@@ -88,7 +88,7 @@ class Uma
     @odds_list.size > 1 && !@scheduler.is_on_deadline && !@converge
   end
 
-  #TODO private?
+  # TODO: private?
   def save
     @manager.save unless @simulate
   end
@@ -106,7 +106,7 @@ class Uma
   end
 
   def get_odds
-    #TODO OddsFetcher#fetch_new_oddsと紛らわしいから名前なんとかしよう
+    # TODO: OddsFetcher#fetch_new_oddsと紛らわしいから名前なんとかしよう
     @odds_list = (@simulate ? @fetcher.get_odds : @manager.odds)
     save
   end
@@ -114,7 +114,7 @@ class Uma
   def check_conv(loss)
     if (loss - @prev_loss).abs < 1e-5
       @converge = true
-      @logger.info "Fitting converges!"
+      @logger.info 'Fitting converges!'
       return true
     end
     false

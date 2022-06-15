@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "./lib/probability"
-require "./lib/positives"
+require './lib/probability'
+require './lib/positives'
 
 # Object class for mathematical model for fitting time series of odds
 class OddsAnalyzer
@@ -18,7 +18,7 @@ class OddsAnalyzer
   def initialize(logger = nil)
     @logger = logger
     @a = Probability.new
-    @b = Positives.new      # @b[0]はdummy
+    @b = Positives.new # @b[0]はdummy
     @eps = 0.01
   end
 
@@ -44,7 +44,7 @@ class OddsAnalyzer
   def forecast_next(prev, odds, t, a, b)
     q = strategy(odds, t, b)
     @blueprint.push q
-    prev.map.with_index { |r, i| (1.0 - a) * r + a * q[i] }
+    prev.map.with_index { |r, i| ((1.0 - a) * r) + (a * q[i]) }
   end
 
   def update_params(odds_list, with_forecast: false)
@@ -63,12 +63,12 @@ class OddsAnalyzer
   def loss(odds_list, with_forecast: false)
     with_forecast ? forecast(odds_list) : adjust_params(odds_list)
     @model.map.with_index do |q, k|
-      p = Probability.new_from_odds(odds_list[k+1])
+      p = Probability.new_from_odds(odds_list[k + 1])
       p.kl_div(q)
     end
   end
 
-  #TODO private?
+  # TODO: private?
   def strategy(odds, t, b)
     exp_gain = t.schur(odds)
     w = exp_gain.map { |r| Math.exp(r * b) }

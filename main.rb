@@ -11,7 +11,7 @@ uma = Uma.new(
   datafile:  'EpsomCup',
   duplicate: false, # true: オッズの更新がなくても取得する
   simulate:  true,
-  simfile:   '20220612_EpsomCup'
+  simfile:   '20220612_EpsomCup',
 )
 
 count = 0
