@@ -34,7 +34,8 @@ RSpec.describe OddsAnalyzer do
         expect(res.size).to eq 3
       end
       it 'with larger b gives larger expected gain' do
-        b1, b2 = 1.0, 2.0
+        b1 = 1.0
+        b2 = 2.0
         res1 = @obj.strategy(@odds, @t, b1)
         res2 = @obj.strategy(@odds, @t, b2)
         gain1 = @t.expectation(res1.schur(@odds))
@@ -42,7 +43,8 @@ RSpec.describe OddsAnalyzer do
         expect(gain1 < gain2).to be_truthy
       end
       it 'with larger b gives more peaky distribution' do
-        b1, b2 = 1.0, 2.0
+        b1 = 1.0
+        b2 = 2.0
         res1 = @obj.strategy(@odds, @t, b1)
         res2 = @obj.strategy(@odds, @t, b2)
         expect(res1.max < res2.max).to be_truthy
@@ -57,7 +59,8 @@ RSpec.describe OddsAnalyzer do
       end
 
       it 'gives expected gain equal to return rate' do
-        b1, b2 = 1.0, 2.0
+        b1 = 1.0
+        b2 = 2.0
         res1 = @obj.strategy(@odds, @t, b1)
         res2 = @obj.strategy(@odds, @t, b2)
         gain1 = @t.expectation(res1.schur(@odds))
@@ -66,7 +69,8 @@ RSpec.describe OddsAnalyzer do
         expect(gain2).to eq RETURN_RATE
       end
       it 'gives a uniform distribution for all b' do
-        b1, b2 = 1.0, 2.0
+        b1 = 1.0
+        b2 = 2.0
         res1 = @obj.strategy(@odds, @t, b1)
         res2 = @obj.strategy(@odds, @t, b2)
         expect(res1[0]).to within(1e-6).of(res1[1])

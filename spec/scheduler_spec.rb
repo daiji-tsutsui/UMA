@@ -79,12 +79,12 @@ end
 
 def dummy_data1
   {
-    'start' => Time.parse("1993-04-17 15:03:00 +0900"),
-    'end' => Time.parse("1993-04-17 15:25:20 +0900"),
+    'start' => Time.parse('1993-04-17 15:03:00 +0900'),
+    'end' => Time.parse('1993-04-17 15:25:20 +0900'),
     'rule' => [
       { 'duration' => 960, 'interval' => 240 },
       { 'duration' => 600, 'interval' => 120 },
-    ]
+    ],
   }
 end
 
@@ -95,7 +95,7 @@ def dummy_data2
     'rule' => [
       { 'duration' => 400, 'interval' => 100 },
       { 'duration' => 200, 'interval' => 50 },
-    ]
+    ],
   }
 end
 
@@ -106,6 +106,6 @@ def dummy_data3
     'rule' => [
       { 'duration' => 400, 'interval' => 10 },
       { 'duration' => 200, 'interval' => 50 },
-    ]
+    ],
   }
 end

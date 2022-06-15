@@ -36,7 +36,7 @@ RSpec.describe DataManager do
     before do
       @obj = DataManager.new('save_test')
       @obj.data.push({
-        at: Time.local(1993, 4, 17),
+        at:   Time.local(1993, 4, 17),
         data: [4.0, 4.0, 2.0],
       })
       @filename = "./data/#{Time.now.strftime('%Y%m%d')}_save_test.yml"
@@ -61,7 +61,7 @@ RSpec.describe DataManager do
     before do
       @obj = DataManager.new('odds_test')
       @obj.data.push({
-        at: Time.local(1993, 4, 17),
+        at:   Time.local(1993, 4, 17),
         data: [4.0, 4.0, 2.0],
       })
     end

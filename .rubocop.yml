@@ -3,6 +3,9 @@ AllCops:
 Metrics/BlockLength:
   Exclude:
     - spec/*_spec.rb
+Metrics/MethodLength:
+  Exclude:
+    - spec/*_spec.rb
 Naming/MethodParameterName:
   Exclude:
     - lib/probability.rb
@@ -10,6 +13,9 @@ Naming/MethodParameterName:
 Naming/AccessorMethodName:
   Exclude:
     - lib/jra/pages.rb
+Style/BlockComments:
+  Exclude:
+    - spec/spec_helper.rb
 Style/RedundantSelf:
   Exclude:
     - lib/probability.rb
@@ -18,5 +24,9 @@ Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: comma
 Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: comma
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma
 Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
+Layout/HashAlignment:
+  EnforcedColonStyle: table

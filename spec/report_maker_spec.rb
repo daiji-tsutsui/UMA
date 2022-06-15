@@ -30,20 +30,20 @@ RSpec.describe ReportMaker do
 
     it 'gives a simple prefix' do
       @obj.summarize(@odds)
-      expect(@obj.report).to match /\ASummary:\n\n/
+      expect(@obj.report).to match(/\ASummary:\n\n/)
     end
     it 'gives necessary terms' do
       @obj.summarize(@odds)
-      expect(@obj.report).to match /^      time \|/
-      expect(@obj.report).to match /^    weight \|/
-      expect(@obj.report).to match /^ certainty \|/
-      expect(@obj.report).to match /^         horse \|/
-      expect(@obj.report).to match /^   probability \|/
-      expect(@obj.report).to match /^  current odds \|/
-      expect(@obj.report).to match /^  optimal odds \|/
-      expect(@obj.report).to match /^    weak strat \|/
-      expect(@obj.report).to match /^  strong strat \|/
-      expect(@obj.report).to match /^  probable st. \|/
+      expect(@obj.report).to match(/^      time \|/)
+      expect(@obj.report).to match(/^    weight \|/)
+      expect(@obj.report).to match(/^ certainty \|/)
+      expect(@obj.report).to match(/^         horse \|/)
+      expect(@obj.report).to match(/^   probability \|/)
+      expect(@obj.report).to match(/^  current odds \|/)
+      expect(@obj.report).to match(/^  optimal odds \|/)
+      expect(@obj.report).to match(/^    weak strat \|/)
+      expect(@obj.report).to match(/^  strong strat \|/)
+      expect(@obj.report).to match(/^  probable st. \|/)
     end
   end
 end

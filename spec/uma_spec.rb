@@ -9,12 +9,12 @@ RSpec.describe Uma do
   before do
     ENV['SIMULATOR_FIRST_WAIT'] = '1'
     @obj = Uma.new(
-      simulate:   true,
-      simfile:    'dummy_for_test',
+      simulate: true,
+      simfile:  'dummy_for_test',
     )
   end
   after do
-    FileUtils.rm(Dir.glob("./log/*_dummy_for_test.log"))
+    FileUtils.rm(Dir.glob('./log/*_dummy_for_test.log'))
   end
 
   describe '#new' do
@@ -31,40 +31,40 @@ RSpec.describe Uma do
   describe '#is_on_fire' do
     it 'adds an INFO log "Performed"' do
       pat_info_performed = /INFO -- : Performed!!/
-      expect {
-        until @obj.is_on_fire do sleep(1) end
-      }.to change{ is_included_in_log?(pat_info_performed) }.from(false).to(true)
+      expect do
+        sleep(1) until @obj.is_on_fire
+      end.to change { is_included_in_log?(pat_info_performed) }.from(false).to(true)
     end
   end
 
   describe '#run' do
     it 'adds an INFO log "Got odds"' do
       pat_info_got_odds = /INFO -- : Got odds:/
-      until @obj.is_on_fire do sleep(1) end
-      expect {
+      sleep(1) until @obj.is_on_fire
+      expect do
         @obj.run
-      }.to change{ is_included_in_log?(pat_info_got_odds) }.from(false).to(true)
+      end.to change { is_included_in_log?(pat_info_got_odds) }.from(false).to(true)
     end
   end
 
   describe '#learn' do
     before do
-      until @obj.is_on_fire do sleep(1) end
+      sleep(1) until @obj.is_on_fire
       @obj.run
     end
 
     it 'changes summarized flag' do
-      expect {
+      expect do
         @obj.learn
-      }.to change{ @obj.summarized }.from(false).to(true)
+      end.to change { @obj.summarized }.from(false).to(true)
     end
 
     context 'without args' do
       it 'adds an INFO log "Summary"' do
         pat_info_summary = /INFO -- : Summary:/
-        expect {
+        expect do
           @obj.learn
-        }.to change{ is_included_in_log?(pat_info_summary) }.from(false).to(true)
+        end.to change { is_included_in_log?(pat_info_summary) }.from(false).to(true)
       end
       it 'does not add an INFO log "Loss"' do
         pat_info_loss = /INFO -- : Loss:/
@@ -76,15 +76,15 @@ RSpec.describe Uma do
     context 'with check_loss flag true' do
       it 'adds an INFO log "Summary"' do
         pat_info_summary = /INFO -- : Summary:/
-        expect {
+        expect do
           @obj.learn(check_loss: true)
-        }.to change{ is_included_in_log?(pat_info_summary) }.from(false).to(true)
+        end.to change { is_included_in_log?(pat_info_summary) }.from(false).to(true)
       end
       it 'adds an INFO log "Loss"' do
         pat_info_loss = /INFO -- : Loss:/
-        expect {
+        expect do
           @obj.learn(check_loss: true)
-        }.to change{is_included_in_log?(pat_info_loss)}.from(false).to(true)
+        end.to change { is_included_in_log?(pat_info_loss) }.from(false).to(true)
       end
     end
   end
@@ -97,7 +97,7 @@ RSpec.describe Uma do
 end
 
 def is_included_in_log?(pattern)
-  filename = "./log/#{Time.now.strftime("%Y%m%d_%H%M")}_dummy_for_test.log"
+  filename = "./log/#{Time.now.strftime('%Y%m%d_%H%M')}_dummy_for_test.log"
   File.open(filename, 'r') do |f|
     f.each_line do |line|
       return true if line =~ pattern

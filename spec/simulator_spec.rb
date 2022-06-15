@@ -69,15 +69,15 @@ end
 def dummy_data
   [
     {
-      at: Time.now,
+      at:   Time.now,
       data: [3.2, 3.2, 1.6],
     },
     {
-      at: Time.now + SIMULATOR_SPEC_TEN_SECONDS,
+      at:   Time.now + SIMULATOR_SPEC_TEN_SECONDS,
       data: [4.0, 2.67, 1.6],
     },
     {
-      at: Time.now + 2 * SIMULATOR_SPEC_TEN_SECONDS,
+      at:   Time.now + (2 * SIMULATOR_SPEC_TEN_SECONDS),
       data: [2.67, 2.67, 2.0],
     },
   ]
