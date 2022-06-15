@@ -16,8 +16,7 @@ class Uma
       @manager = DataManager.new(options[:datafile])
       @logger = Logger.new("./log/#{Time.now.strftime("%Y%m%d_%H%M")}.log")
       #TODO options渡すのよくない
-      @fetcher = OddsFetcher.new(options)
-      @fetcher.sync_data(@manager.data)
+      @fetcher = OddsFetcher.new(@logger, options)
       @scheduler = Scheduler.new(@logger)
     else
       @manager = DataManager.new(options[:simfile], simulate: true)
@@ -35,8 +34,13 @@ class Uma
 
   def run
     #TODO fetch_new_oddsにできれば統一したい（無理なら構わない）
-    result = @simulate ? @fetcher.run : @fetcher.fetch_new_odds
-    @logger.info result unless result.nil?
+    if @simulate
+      result = @fetcher.run
+      @logger.info result unless result.nil?
+    else
+      new_odds = @fetcher.fetch_new_odds
+      @manager.receive(new_odds)
+    end
     get_odds
     init_flags
   end

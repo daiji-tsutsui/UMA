@@ -7,8 +7,9 @@ class OddsFetcher
 
   attr_accessor :odds
 
-  def initialize(**options)
+  def initialize(logger, **options)
     @odds = []
+    @logger = logger
     @driver     = options[:driver]    || :selenium_chrome_headless
     @day        = options[:day]       || Jra::SUNDAY
     @course     = options[:course]    || '阪神'
@@ -37,23 +38,19 @@ class OddsFetcher
         fetched = true
       end
     end
-    fetched ? make_log : "Same odds! Skipped!"
-  end
-
-  # DataManagerと同期する
-  #TODO わかりづらいからインスタンスを共有するのはやめた方がいい
-  # DataManagerを親として，DataManagerに最新のオッズを渡すようにすべき
-  def sync_data(data_store)
-    odds = data_store
+    newest_odds_with_logging(fetched)
   end
 
   private
 
-  def make_log
-    odds = @odds[-1]
-    if odds.nil?
-      return "Fetcher has no odds!!"
+  def newest_odds_with_logging(fetched)
+    unless fetched
+      @logger.info 'Same odds! Skipped!'
+      return nil
     end
-    "Got odds: #{odds[:data]}"
+    odds = @odds[-1]
+    log = odds.nil? ? 'Fetcher has no odds!!' : "Got odds: #{odds[:data]}"
+    @logger.info log
+    odds
   end
 end

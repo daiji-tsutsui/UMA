@@ -27,4 +27,8 @@ class DataManager
   def odds
     @data.map { |record| record[:data] }
   end
+
+  def receive(new_data)
+    @data.push new_data
+  end
 end
