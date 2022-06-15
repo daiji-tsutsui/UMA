@@ -7,6 +7,9 @@ Naming/MethodParameterName:
   Exclude:
     - lib/probability.rb
     - lib/positives.rb
+Naming/AccessorMethodName:
+  Exclude:
+    - lib/jra/pages.rb
 Style/RedundantSelf:
   Exclude:
     - lib/probability.rb
