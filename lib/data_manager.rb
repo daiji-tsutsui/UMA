@@ -14,8 +14,7 @@ class DataManager
                 else
                   "#{base_path}/#{Time.now.strftime('%Y%m%d')}_#{filename}.yml"
                 end
-    @data = []
-    @data = YAML.load_file(@filename) if File.exist? @filename
+    @data = File.exist?(@filename) ? YAML.load_file(@filename) : []
   end
 
   def save
