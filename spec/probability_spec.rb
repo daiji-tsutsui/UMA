@@ -132,7 +132,7 @@ RSpec.describe Probability do
       end
     end
     it 'raises exception when trg_size is less than self size' do
-      expect{ @src.extend_to!(2) }.to raise_error(ArgumentError)
+      expect { @src.extend_to!(2) }.to raise_error(ArgumentError)
     end
   end
 

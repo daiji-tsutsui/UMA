@@ -4,7 +4,6 @@ require './lib/positives'
 
 # Presentation for probability distributions
 class Probability < Positives
-
   def initialize(w = [])
     super(w)
     normalize
@@ -22,7 +21,7 @@ class Probability < Positives
   end
 
   # v: eta-vector
-  def move_in_theta!(v, name = nil)
+  def move_in_theta!(v, _name = nil)
     v_theta = fisher.map do |row|
       row.map.with_index { |entry, j| entry * v[j] }.sum
     end
@@ -41,12 +40,12 @@ class Probability < Positives
   end
 
   def expectation(f)
-    self.dot(f)
+    dot(f)
   end
 
   def kl_div(q)
     f = self.map.with_index { |p_i, i| Math.log(p_i) - Math.log(q[i]) }
-    self.expectation(f)
+    expectation(f)
   end
 
   def validate(name = nil)
@@ -64,45 +63,45 @@ class Probability < Positives
 
     def delta(i, j)
       return 1.0 if i == j
+
       0.0
     end
   end
 
-
   private
 
-    def normalize
-      total = self.sum
-      self.map! { |r| r / total }
-    end
+  def normalize
+    total = self.sum
+    self.map! { |r| r / total }
+  end
 
-    def validate_negative(name = nil)
-      warn = nil
-      self.each do |p_i|
-        if p_i < 0
-          warn = "Probability \'#{name}\' maybe has a negative entry"
-          break
-        end
-      end
-      warn
-    end
-
-    def validate_total(name = nil)
-      if (self.sum - 1.0).abs > 0.05
-        "Probability \'#{name}\' is maybe not normalized"
+  def validate_negative(name = nil)
+    warn = nil
+    self.each do |p_i|
+      if p_i.negative?
+        warn = "Probability \'#{name}\' maybe has a negative entry"
+        break
       end
     end
+    warn
+  end
 
-    def fisher
-      size1 = self.size - 1
-      matrix = Array.new(size1)
-      (0..size1 - 1).each do |i|
-        matrix[i] = Array.new(size1)
-        (0..size1 - 1).each do |j|
-          matrix[i][j] = -self[i + 1] * self[j + 1]
-          matrix[i][j] += self[i + 1] if i == j
-        end
+  def validate_total(name = nil)
+    return unless (self.sum - 1.0).abs > 0.05
+
+    "Probability \'#{name}\' is maybe not normalized"
+  end
+
+  def fisher
+    size1 = self.size - 1
+    matrix = Array.new(size1)
+    (0..size1 - 1).each do |i|
+      matrix[i] = Array.new(size1)
+      (0..size1 - 1).each do |j|
+        matrix[i][j] = -self[i + 1] * self[j + 1]
+        matrix[i][j] += self[i + 1] if i == j
       end
-      matrix
     end
+    matrix
+  end
 end

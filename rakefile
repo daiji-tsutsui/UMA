@@ -31,16 +31,28 @@ task :help do
 end
 
 desc 'Run rubocop'
-task :rubo do
-  sh %(bundle exec rubocop)
+task :rubo, [:filename] do |_task, args|
+  if args[:filename].nil?
+    sh %(bundle exec rubocop)
+  else
+    sh %(bundle exec rubocop #{args[:filename]})
+  end
 end
 
 desc 'Run rubocop with -a option'
-task :ruboa do
-  sh %(bundle exec rubocop -a)
+task :ruboa, [:filename] do |_task, args|
+  if args[:filename].nil?
+    sh %(bundle exec rubocop -a)
+  else
+    sh %(bundle exec rubocop -a #{args[:filename]})
+  end
 end
 
 desc 'Run rubocop with -A option'
-task :ruboA do
-  sh %(bundle exec rubocop -A)
+task :ruboA, [:filename] do |_task, args|
+  if args[:filename].nil?
+    sh %(bundle exec rubocop -A)
+  else
+    sh %(bundle exec rubocop -A #{args[:filename]})
+  end
 end

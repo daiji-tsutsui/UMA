@@ -2,20 +2,19 @@
 
 # Presentation for nonnegative distributions
 class Positives < Array
-
   def initialize(w = [])
-    self.concat(w)
+    super(w)
     self.concat([1.0]) if self.empty?
   end
 
-  def move!(v, name = nil)
+  def move!(v, _name = nil)
     v.each.with_index(1) do |v_i, i|
       self[i] += v_i
     end
     nil
   end
 
-  def move_in_theta!(v, name = nil)
+  def move_in_theta!(v, _name = nil)
     v_theta = v.map.with_index(1) { |v_i, i| self[i] * v_i }
     v_theta.each.with_index(1) do |v_i, i|
       self[i] *= Math.exp(v_i)
@@ -35,6 +34,6 @@ class Positives < Array
 
   # Inner-product
   def dot(array)
-    self.schur(array).sum
+    schur(array).sum
   end
 end
