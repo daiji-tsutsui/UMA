@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "./lib/google/google"
 
 def test_scraping(searc_query)

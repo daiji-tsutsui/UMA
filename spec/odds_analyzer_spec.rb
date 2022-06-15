@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'odds_analyzer'
 
 RETURN_RATE = 0.8
@@ -123,7 +125,7 @@ RSpec.describe OddsAnalyzer do
       expect(@obj.t).to_not eq old_t
     end
     it 'without forecasting causes exception' do
-      expect{ @obj.update_params(@odds_list) }.to raise_error(NoMethodError)
+      expect { @obj.update_params(@odds_list) }.to raise_error(NoMethodError)
     end
     it 'changes parameters #2' do
       old_a = @obj.a.clone
@@ -154,7 +156,7 @@ RSpec.describe OddsAnalyzer do
       end
     end
     it 'without forecasting causes exception' do
-      expect{ @obj.loss(@odds_list) }.to raise_error(NoMethodError)
+      expect { @obj.loss(@odds_list) }.to raise_error(NoMethodError)
     end
     it 'gives an array of non-negative values #2' do
       res = @obj.loss(@odds_list, with_forecast: true)

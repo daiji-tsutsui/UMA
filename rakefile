@@ -1,29 +1,46 @@
+# frozen_string_literal: true
+
 task default: :help
 
 desc 'Run test'
-task :test, [:case_name] do |task, args|
+task :test, [:case_name] do |_task, args|
   if args[:case_name].nil?
-    sh %{bundle exec rspec}
+    sh %(bundle exec rspec)
   else
-    sh %{bundle exec rspec spec/#{args[:case_name]}_spec.rb}
+    sh %(bundle exec rspec spec/#{args[:case_name]}_spec.rb)
   end
 end
 
 desc 'List up testcases'
-task :list, [:case_name] do |task, args|
+task :list, [:case_name] do |_task, args|
   if args[:case_name].nil?
-    sh %{bundle exec rspec -f d --dry-run --order defined}
+    sh %(bundle exec rspec -f d --dry-run --order defined)
   else
-    sh %{bundle exec rspec spec/#{args[:case_name]}_spec.rb -f d --dry-run --order defined}
+    sh %(bundle exec rspec spec/#{args[:case_name]}_spec.rb -f d --dry-run --order defined)
   end
 end
 
 desc 'Run main.rb'
 task :run do
   ENV['SIMULATOR_FIRST_WAIT'] = '10'
-  sh %{bundle exec ruby main.rb}
+  sh %(bundle exec ruby main.rb)
 end
 
 task :help do
-  sh %{rake -T}
+  sh %(rake -T)
+end
+
+desc 'Run rubocop'
+task :rubo do
+  sh %(bundle exec rubocop)
+end
+
+desc 'Run rubocop with -a option'
+task :ruboa do
+  sh %(bundle exec rubocop -a)
+end
+
+desc 'Run rubocop with -A option'
+task :ruboA do
+  sh %(bundle exec rubocop -A)
 end

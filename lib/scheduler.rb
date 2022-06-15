@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'yaml'
 
 # Read schedule.yaml and make schedule for fetching odds data

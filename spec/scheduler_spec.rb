@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'scheduler'
 
 SCHEDULER_SPEC_TEN_MINUTES = 60 * 10

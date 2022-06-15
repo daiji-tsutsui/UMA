@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'positives'
 
 RSpec.describe Positives do

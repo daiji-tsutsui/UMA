@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'logger'
 require "./lib/report_maker"
 require "./lib/data_manager"

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simulator'
 
 SIMULATOR_SPEC_TEN_SECONDS = 10

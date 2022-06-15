@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "./lib/probability"
 
 # Make instant summary and output to log file

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Presentation for nonnegative distributions
 class Positives < Array
 

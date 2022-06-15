@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'odds_fetcher'
 
 RSpec.describe OddsFetcher do

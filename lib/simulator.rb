@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Mock object for OddsFetcher and Scheduler
 class Simulator
   attr_accessor :odds         # 実行予定データキュー

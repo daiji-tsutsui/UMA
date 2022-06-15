@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'yaml'
 
 # Read and write odds stream data

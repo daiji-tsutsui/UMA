@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './lib/positives'
 
 # Presentation for probability distributions

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'report_maker'
 
 RSpec.describe ReportMaker do
