@@ -5,15 +5,12 @@ require './lib/positives'
 
 # Object class for mathematical model for fitting time series of odds
 class OddsAnalyzer
-
   PROBABLE_EFFICIENCY = 0.05
   PROBABLE_GUARANTY = 0.6
   PROBABLE_RETURN = 0.8
 
   attr_accessor :t, :a, :b
-  attr_accessor :ini_p
-  attr_accessor :model, :blueprint
-  attr_accessor :eps
+  attr_reader :model, :blueprint, :ini_p, :eps
 
   def initialize(logger = nil)
     @logger = logger
@@ -81,13 +78,11 @@ class OddsAnalyzer
 
   def probable_strat(odds)
     gain_by_pay = @t.schur(odds).map.with_index { |r, i| [i, r] }.to_h
-    gain_by_pay.delete_if { |key, val| @t[key] < PROBABLE_EFFICIENCY }
+    gain_by_pay.delete_if { |key, _val| @t[key] < PROBABLE_EFFICIENCY }
     gain_by_pay = gain_by_pay.sort { |a, b| a[1] <=> b[1] }
-    while gain_by_pay[1..-1].sum(0.0) { |e| @t[e[0]] } > PROBABLE_GUARANTY do
-      gain_by_pay.shift
-    end
+    gain_by_pay.shift while gain_by_pay[1..].sum(0.0) { |e| @t[e[0]] } > PROBABLE_GUARANTY
     result = Array.new(odds.size, nil)
-    gain_by_pay.to_h.each { |key, val| result[key] = PROBABLE_RETURN / odds[key] }
+    gain_by_pay.to_h.each { |key, _val| result[key] = PROBABLE_RETURN / odds[key] }
     result
   end
 
@@ -104,6 +99,7 @@ class OddsAnalyzer
     warnings = @a.validate('a') + @t.validate('t') + addition
     warnings.each do |warn|
       next if warn.nil?
+
       @logger.nil? ? puts("[WARN][#{Time.new}] #{warn}") : @logger.warn(warn)
     end
   end
@@ -145,7 +141,7 @@ class OddsAnalyzer
       teacher = Probability.new_from_odds(odds_list[k])
       grad_t_for_instant(p, teacher, strat, @a[k], @b[k], odds_list[k])
     end
-    grad_list.transpose.map { |row| row.sum }
+    grad_list.transpose.map(&:sum)
   end
 
   def grad_a_for_instant(p, teacher, strat)
@@ -164,17 +160,14 @@ class OddsAnalyzer
     result = []
     (1..odds.size - 1).each do |j|
       f = p.map.with_index do |p_i, i|
-        a * b * strat[i] * (
-          odds[j] * (delta(i, j) - strat[j])
-          - odds[0] * (delta(i, 0) - strat[0])
-        ) / p_i
+        a * b * strat[i] * ((odds[j] * (delta(i, j) - strat[j])) - (odds[0] * (delta(i, 0) - strat[0]))) / p_i
       end
-      result.push -teacher.expectation(f)
+      result.push(-teacher.expectation(f))
     end
     result
   end
 
   def delta(i, j)
-    Probability.delta(i,j)
+    Probability.delta(i, j)
   end
 end
