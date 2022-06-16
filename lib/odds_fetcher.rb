@@ -33,7 +33,7 @@ class OddsFetcher
       current_odds = single_odds_page.get_tan_odds
       if @duplicate || @odds[-1].nil? || current_odds != @odds[-1][:data]
         @odds.push({
-          at: Time.now,
+          at:   Time.now,
           data: current_odds,
         })
         fetched = true

@@ -8,6 +8,11 @@ Metrics/BlockLength:
 Metrics/MethodLength:
   Exclude:
     - spec/*_spec.rb
+    - lib/odds_fetcher.rb
+Metrics/AbcSize:
+  Exclude:
+    - spec/*_spec.rb
+    - lib/odds_fetcher.rb
 
 Naming/MethodParameterName:
   Exclude:
@@ -25,6 +30,9 @@ Style/RedundantSelf:
   Exclude:
     - lib/probability.rb
     - lib/positives.rb
+Style/Documentation:
+  Exclude:
+    - lib/google/*
 Style/FormatString:
   EnforcedStyle: sprintf
 Style/TrailingCommaInArrayLiteral:

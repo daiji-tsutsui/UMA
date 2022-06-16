@@ -96,10 +96,10 @@ class Probability < Positives
     size1 = self.size - 1
     matrix = Array.new(size1)
     (0..size1 - 1).each do |i|
-      matrix[i] = Array.new(size1)
+      matrix[i] = Array.new(size1, 0.0)
       (0..size1 - 1).each do |j|
-        matrix[i][j] = -self[i + 1] * self[j + 1]
-        matrix[i][j] += self[i + 1] if i == j
+        matrix[i][j] = self[i + 1] if i == j
+        matrix[i][j] -= self[i + 1] * self[j + 1]
       end
     end
     matrix
