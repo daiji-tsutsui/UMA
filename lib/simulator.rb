@@ -4,13 +4,13 @@ require './lib/scheduler'
 
 # Mock object for OddsFetcher and Scheduler
 class Simulator < Scheduler
-  # odds:     実行予定データキュー
-  # sim_odds: 実行済みデータキュー
-  attr_accessor :odds, :sim_odds, :next
+  # queue:     実行予定データキュー
+  # simulated: 実行済みデータキュー
+  attr_accessor :queue, :simulated, :next
 
   def initialize(logger, odds_list)
-    @odds = odds_list
-    @sim_odds = []
+    @queue = odds_list
+    @simulated = []
     @logger = logger
     @first_wait = ENV.fetch('SIMULATOR_FIRST_WAIT', 60).to_i
     @table = schedule(odds_list)
@@ -20,20 +20,18 @@ class Simulator < Scheduler
     @next = @table.shift
   end
 
-  # TODO: runってなんぞ，もっと具体的な名前に
-  def run
-    if @odds.empty?
-      @logger.warn 'Simulator has no odds data in exe queue'
+  def fetch_new_odds
+    if @queue.empty?
+      @logger.warn 'Simulator has no odds data in execution queue'
     else
-      current = @odds.shift
-      @sim_odds.push current
+      new_odds = @queue.shift
+      @simulated.push new_odds
     end
-    log
+    logging(@simulated[-1])
   end
 
-  # TODO: 謎メソッドその２
-  def get_odds
-    @sim_odds.map { |record| record[:data] }
+  def odds
+    @simulated.map { |record| record[:data] }
   end
 
   private
@@ -44,10 +42,11 @@ class Simulator < Scheduler
     odds_list.map { |record| record[:at] + inc }
   end
 
-  def log
-    odds = @sim_odds[-1]
-    return "Got odds: #{odds[:data]}" unless odds.nil?
-
-    'Simulator has no odds!!'
+  def logging(odds)
+    unless odds.nil?
+      @logger.info "Got odds: #{odds[:data]}"
+      return
+    end
+    @logger.warn 'Simulator has no odds!!'
   end
 end

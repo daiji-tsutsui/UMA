@@ -37,8 +37,7 @@ class Uma
   def run
     # TODO: fetch_new_oddsにできれば統一したい（無理なら構わない）
     if @simulate
-      result = @fetcher.run
-      @logger.info result unless result.nil?
+      @fetcher.fetch_new_odds
     else
       new_odds = @fetcher.fetch_new_odds
       @manager.receive(new_odds)
@@ -106,8 +105,7 @@ class Uma
   end
 
   def get_odds
-    # TODO: OddsFetcher#fetch_new_oddsと紛らわしいから名前なんとかしよう
-    @odds_list = (@simulate ? @fetcher.get_odds : @manager.odds)
+    @odds_list = (@simulate ? @fetcher.odds : @manager.odds)
     save
   end
 

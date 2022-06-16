@@ -14,23 +14,23 @@ RSpec.describe Simulator do
   describe '#new' do
     it 'makes schedule' do
       @obj = Simulator.new(@logger, dummy_data)
-      expect(@obj.odds.size).to eq 3
-      expect(@obj.sim_odds).to eq []
+      expect(@obj.queue.size).to eq 3
+      expect(@obj.simulated).to eq []
       expect(@obj.next.class.to_s).to eq 'Time'
     end
   end
 
-  describe '#run and #get_odds' do
+  describe '#fetch_new_odds and #odds' do
     it 'gives a simulated odds stream' do
       @obj = Simulator.new(@logger, dummy_data)
-      @obj.run
-      expect(@obj.odds.size).to eq 2
-      expect(@obj.sim_odds.size).to eq 1
-      expect(@obj.get_odds).to eq [[3.2, 3.2, 1.6]]
+      @obj.fetch_new_odds
+      expect(@obj.queue.size).to eq 2
+      expect(@obj.simulated.size).to eq 1
+      expect(@obj.odds).to eq [[3.2, 3.2, 1.6]]
     end
     it 'gives empty array if without run' do
       @obj = Simulator.new(@logger, dummy_data)
-      expect(@obj.get_odds).to eq []
+      expect(@obj.odds).to eq []
     end
   end
 
