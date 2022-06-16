@@ -28,8 +28,8 @@ class Simulator
     @sim_odds.map { |record| record[:data] }
   end
 
-  def is_on_fire
-    return false if is_finished
+  def on_fire?
+    return false if finished?
     if Time.now > @next
       @next = @table.shift
       @next = @end if @next.nil?
@@ -39,13 +39,13 @@ class Simulator
     false
   end
 
-  def is_on_deadline
+  def on_deadline?
     return true if Time.now > @next - 10
 
     false
   end
 
-  def is_finished
+  def finished?
     Time.now > @end
   end
 

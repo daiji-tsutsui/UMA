@@ -18,9 +18,9 @@ count = 0
 while true
   break if uma.finalize
 
-  if uma.is_on_fire
+  if uma.on_fire?
     uma.run
-  elsif uma.is_on_learning
+  elsif uma.on_learning?
     (count % 100).zero? ? uma.learn(check_loss: true) : uma.learn
     sleep 0.02
   else

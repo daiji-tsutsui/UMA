@@ -7,7 +7,6 @@ class Scheduler
   attr_accessor :next
 
   def initialize(logger)
-    # input = open('schedule.yaml', 'r') { |f| YAML.load(f) }
     input = YAML.load_file('schedule.yaml')
     @start = input['start']
     @end = input['end']
@@ -17,17 +16,17 @@ class Scheduler
     indicator = @start.clone
     rule = input['rule'].shift
     while true
-      if !rule['until'].nil?
-        if indicator >= rule['until']
-          rule = get_new_rule(input['rule'])
-          rule.nil? ? break : next
-        end
-      else
+      if rule['until'].nil?
         if rule['duration'] <= 0
           rule = get_new_rule(input['rule'])
           rule.nil? ? break : next
         end
         rule['duration'] -= rule['interval']
+      else
+        if indicator >= rule['until']
+          rule = get_new_rule(input['rule'])
+          rule.nil? ? break : next
+        end
       end
       indicator += rule['interval']
       break if indicator > @end
@@ -36,21 +35,17 @@ class Scheduler
     @next = @table.shift
   end
 
-  # TODO: privateでよくない？
-  def get_new_rule(rules)
-    rules.shift
-  end
-
   def wait
-    return if is_finished
-    while true do
-      break if is_on_fire
+    return if finished?
+    while true
+      break if on_fire?
+
       sleep 10
     end
   end
 
-  def is_on_fire
-    return false if is_finished
+  def on_fire?
+    return false if finished?
     if Time.now > @next
       @next = @table.shift
       @next = @end if @next.nil?
@@ -60,14 +55,19 @@ class Scheduler
     false
   end
 
-  def is_on_deadline
-    if Time.now > @next - 10
-      return true
-    end
+  def on_deadline?
+    return true if Time.now > @next - 10
+
     false
   end
 
-  def is_finished
+  def finished?
     Time.now > @end
+  end
+
+  private
+
+  def get_new_rule(rules)
+    rules.shift
   end
 end

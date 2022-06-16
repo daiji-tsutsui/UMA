@@ -34,34 +34,34 @@ RSpec.describe Simulator do
     end
   end
 
-  describe '#is_on_fire' do
+  describe '#on_fire?' do
     it 'returns false right after setup' do
       @obj = Simulator.new(@logger, dummy_data)
-      expect(@obj.is_on_fire).to be_falsey
+      expect(@obj.on_fire?).to be_falsey
     end
     it 'returns true 60 seconds after setup' do
       @obj = Simulator.new(@logger, dummy_data)
       @obj.next -= 60
-      expect(@obj.is_on_fire).to be_truthy
+      expect(@obj.on_fire?).to be_truthy
     end
   end
 
-  describe '#is_on_deadline' do
+  describe '#on_deadline?' do
     it 'returns false if more than 10 seconds until the next schedule' do
       @obj = Simulator.new(@logger, dummy_data)
-      expect(@obj.is_on_deadline).to be_falsey
+      expect(@obj.on_deadline?).to be_falsey
     end
     it 'returns true if less than 10 seconds till the next schedule' do
       @obj = Simulator.new(@logger, dummy_data)
       @obj.next -= 50
-      expect(@obj.is_on_deadline).to be_truthy
+      expect(@obj.on_deadline?).to be_truthy
     end
   end
 
-  describe '#is_finished' do
+  describe '#finished?' do
     it 'returns false if the data stream is NOT finished' do
       @obj = Simulator.new(@logger, dummy_data)
-      expect(@obj.is_finished).to be_falsey
+      expect(@obj.finished?).to be_falsey
     end
   end
 end

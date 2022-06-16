@@ -67,7 +67,7 @@ class Uma
   end
 
   def finalize
-    if is_finished
+    if finished?
       get_odds
       odds = @odds_list[-1]
       @summarizer.summarize(odds) unless odds.nil?
@@ -76,16 +76,16 @@ class Uma
     false
   end
 
-  def is_finished
-    @scheduler.is_finished
+  def finished?
+    @scheduler.finished?
   end
 
-  def is_on_fire
-    @scheduler.is_on_fire
+  def on_fire?
+    @scheduler.on_fire?
   end
 
-  def is_on_learning
-    @odds_list.size > 1 && !@scheduler.is_on_deadline && !@converge
+  def on_learning?
+    @odds_list.size > 1 && !@scheduler.on_deadline? && !@converge
   end
 
   # TODO: private?
