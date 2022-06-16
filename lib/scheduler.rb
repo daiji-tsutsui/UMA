@@ -7,32 +7,12 @@ class Scheduler
   attr_accessor :next
 
   def initialize(logger)
+    @logger = logger
+
     input = YAML.load_file('schedule.yaml')
     @start = input['start']
     @end = input['end']
-    @table = [@start]
-    @logger = logger
-
-    indicator = @start.clone
-    rule = input['rule'].shift
-    while true
-      if rule['until'].nil?
-        if rule['duration'] <= 0
-          rule = get_new_rule(input['rule'])
-          rule.nil? ? break : next
-        end
-        rule['duration'] -= rule['interval']
-      else
-        if indicator >= rule['until']
-          rule = get_new_rule(input['rule'])
-          rule.nil? ? break : next
-        end
-      end
-      indicator += rule['interval']
-      break if indicator > @end
-
-      @table.push indicator
-    end
+    @table = make_time_table(input)
     @next = @table.shift
   end
 
@@ -43,18 +23,16 @@ class Scheduler
   end
 
   def on_fire?
-    return false if finished?
+    return false if finished? || Time.now <= @next
 
-    if Time.now > @next
-      @next = @table.shift
-      @next = @end if @next.nil?
-      @logger.info "Performed!! Next will be performed at #{@next}"
-      return true
-    end
-    false
+    # TODO: ブロックを受け取って本当にperformする仕組みにする？
+    # とりあえずbooleanのメソッドでperformしてるのは変
+    perform
+    true
   end
 
   def on_deadline?
+    # TODO: 10[s]を環境変数にしたい
     Time.now > @next - 10
   end
 
@@ -64,7 +42,34 @@ class Scheduler
 
   private
 
-  def get_new_rule(rules)
-    rules.shift
+  def make_time_table(input)
+    result = []
+    rule = input['rule'].shift
+    indicator = @start.clone
+    while indicator < @end
+      result.push(indicator)
+      rule = input['rule'].shift if require_next_rule?(rule, indicator)
+      break if rule.nil?
+
+      indicator = calculate_next_schedule(rule, indicator)
+    end
+    result
+  end
+
+  def require_next_rule?(rule, indicator)
+    return true if !rule['duration'].nil? && rule['duration'] <= 0
+    return true if !rule['until'].nil? && indicator >= rule['until']
+
+    false
+  end
+
+  def calculate_next_schedule(rule, indicator)
+    rule['duration'] -= rule['interval'] unless rule['duration'].nil?
+    indicator + rule['interval']
+  end
+
+  def perform
+    @next = @table.shift || @end
+    @logger.info "Performed!! Next will be performed at #{@next}"
   end
 end
