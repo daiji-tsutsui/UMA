@@ -30,6 +30,7 @@ class Scheduler
       end
       indicator += rule['interval']
       break if indicator > @end
+
       @table.push indicator
     end
     @next = @table.shift
@@ -37,15 +38,13 @@ class Scheduler
 
   def wait
     return if finished?
-    while true
-      break if on_fire?
 
-      sleep 10
-    end
+    sleep 10 until on_fire?
   end
 
   def on_fire?
     return false if finished?
+
     if Time.now > @next
       @next = @table.shift
       @next = @end if @next.nil?
@@ -56,9 +55,7 @@ class Scheduler
   end
 
   def on_deadline?
-    return true if Time.now > @next - 10
-
-    false
+    Time.now > @next - 10
   end
 
   def finished?
