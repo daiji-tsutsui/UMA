@@ -37,12 +37,12 @@ RSpec.describe Uma do
     end
   end
 
-  describe '#run' do
+  describe '#update' do
     it 'adds an INFO log "Got odds"' do
       pat_info_got_odds = /INFO -- : Got odds:/
       sleep(1) until @obj.on_fire?
       expect do
-        @obj.run
+        @obj.update
       end.to change { is_included_in_log?(pat_info_got_odds) }.from(false).to(true)
     end
   end
@@ -50,7 +50,7 @@ RSpec.describe Uma do
   describe '#learn' do
     before do
       sleep(1) until @obj.on_fire?
-      @obj.run
+      @obj.update
     end
 
     it 'changes summarized flag' do

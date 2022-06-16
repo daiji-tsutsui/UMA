@@ -15,11 +15,9 @@ uma = Uma.new(
 )
 
 count = 0
-while true
-  break if uma.finalize
-
+until uma.finished?
   if uma.on_fire?
-    uma.run
+    uma.update
   elsif uma.on_learning?
     (count % 100).zero? ? uma.learn(check_loss: true) : uma.learn
     sleep 0.02
@@ -28,7 +26,7 @@ while true
   end
   count += 1
 end
-uma.save
+uma.finalize
 
 # p loss_list = analyzer.loss(odds_list, with_forecast: true)
 # # p analyzer.model
