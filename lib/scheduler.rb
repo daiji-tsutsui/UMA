@@ -12,7 +12,7 @@ class Scheduler
     input = YAML.load_file('schedule.yaml')
     @start = input['start']
     @end = input['end']
-    @table = make_time_table(input)
+    @table = schedule(input)
     @next = @table.shift
   end
 
@@ -42,7 +42,7 @@ class Scheduler
 
   private
 
-  def make_time_table(input)
+  def schedule(input)
     result = []
     rule = input['rule'].shift
     indicator = @start.clone

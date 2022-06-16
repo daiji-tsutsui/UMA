@@ -40,3 +40,7 @@ Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 Layout/HashAlignment:
   EnforcedColonStyle: table
+
+Lint/MissingSuper:
+  Exclude:
+    - lib/simulator.rb

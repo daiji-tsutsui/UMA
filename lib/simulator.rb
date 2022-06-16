@@ -1,63 +1,47 @@
 # frozen_string_literal: true
 
+require './lib/scheduler'
+
 # Mock object for OddsFetcher and Scheduler
-class Simulator
-  attr_accessor :odds         # 実行予定データキュー
-  attr_accessor :sim_odds     # 実行済みデータキュー
-  attr_accessor :next
+class Simulator < Scheduler
+  # odds:     実行予定データキュー
+  # sim_odds: 実行済みデータキュー
+  attr_accessor :odds, :sim_odds, :next
 
   def initialize(logger, odds_list)
     @odds = odds_list
     @sim_odds = []
     @logger = logger
-    @first_wait = (ENV['SIMULATOR_FIRST_WAIT'] || 60).to_i
-    schedule
+    @first_wait = ENV.fetch('SIMULATOR_FIRST_WAIT', 60).to_i
+    @table = schedule(odds_list)
+    @start = @table[0]
+    # TODO: ここの20[s]も環境変数化したい
+    @end = @table[-1] + 20
+    @next = @table.shift
   end
 
+  # TODO: runってなんぞ，もっと具体的な名前に
   def run
-    if !@odds.empty?
+    if @odds.empty?
+      @logger.warn 'Simulator has no odds data in exe queue'
+    else
       current = @odds.shift
       @sim_odds.push current
-    else
-      @logger.warn 'Simulator has no odds data in exe queue'
     end
     log
   end
 
+  # TODO: 謎メソッドその２
   def get_odds
     @sim_odds.map { |record| record[:data] }
   end
 
-  def on_fire?
-    return false if finished?
-    if Time.now > @next
-      @next = @table.shift
-      @next = @end if @next.nil?
-      @logger.info "Performed!! Next will be performed at #{@next}"
-      return true
-    end
-    false
-  end
-
-  def on_deadline?
-    return true if Time.now > @next - 10
-
-    false
-  end
-
-  def finished?
-    Time.now > @end
-  end
-
   private
 
-  def schedule
-    start = @odds[0][:at]
+  def schedule(odds_list)
+    start = odds_list[0][:at]
     inc = Time.now + @first_wait - start
-    @table = @odds.map { |record| record[:at] + inc }
-    @start = @table[0]
-    @end = @table[-1] + 20
-    @next = @table.shift
+    odds_list.map { |record| record[:at] + inc }
   end
 
   def log
@@ -66,5 +50,4 @@ class Simulator
 
     'Simulator has no odds!!'
   end
-
 end
