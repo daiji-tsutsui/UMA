@@ -35,7 +35,6 @@ class Simulator < Scheduler
   def initialize_time_table
     @table = schedule(@queue)
     @start = @table[0]
-    # TODO: ここの20[s]も環境変数化したい
     @end = @table[-1] + @end_wait
   end
 

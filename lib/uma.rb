@@ -43,6 +43,7 @@ class Uma
   private
 
   def update
+    summarize(force: true)
     new_odds = @fetcher.fetch_new_odds
     @manager.receive(new_odds) unless @simulate
     update_odds_list

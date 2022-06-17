@@ -29,7 +29,6 @@ class Scheduler
   end
 
   def on_deadline?
-    # TODO: 10[s]を環境変数にしたい
     Time.now > @next - @deadline_room_until_fire
   end
 
