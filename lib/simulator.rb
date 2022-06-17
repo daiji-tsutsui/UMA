@@ -6,18 +6,14 @@ require './lib/scheduler'
 class Simulator < Scheduler
   # queue:     実行予定データキュー
   # simulated: 実行済みデータキュー
-  attr_accessor :queue, :simulated, :next
+  attr_accessor :queue, :simulated
 
   def initialize(logger, odds_list)
     @queue = odds_list
     @simulated = []
-    @logger = logger
     @first_wait = ENV.fetch('SIMULATOR_FIRST_WAIT', 60).to_i
-    @table = schedule(odds_list)
-    @start = @table[0]
-    # TODO: ここの20[s]も環境変数化したい
-    @end = @table[-1] + 20
-    @next = @table.shift
+    @end_wait = ENV.fetch('SIMULATOR_END_WAIT', 20).to_i
+    super(logger)
   end
 
   def fetch_new_odds
@@ -35,6 +31,13 @@ class Simulator < Scheduler
   end
 
   private
+
+  def initialize_time_table
+    @table = schedule(@queue)
+    @start = @table[0]
+    # TODO: ここの20[s]も環境変数化したい
+    @end = @table[-1] + @end_wait
+  end
 
   def schedule(odds_list)
     start = odds_list[0][:at]

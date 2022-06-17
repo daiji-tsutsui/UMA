@@ -17,10 +17,30 @@ class Uma
     @simulate ? init_simulator(options[:simfile]) : init_runner(options)
     @analyzer = OddsAnalyzer.new(@logger)
     @summarizer = ReportMaker.new(@analyzer, @logger)
+    @learn_interval = ENV.fetch('UMA_LEARNING_INTERVAL', 100).to_i
     update_odds_list
     init_params
     @logger.info "DataManager got data: #{@manager.data}"
   end
+
+  # TODO: 100とか0.02とか全部環境変数化したい
+  def run
+    count = 0
+    until @scheduler.finished?
+      if @scheduler.on_fire?
+        update
+      elsif on_learning?
+        (count % @learn_interval).zero? ? learn(check_loss: true) : learn
+        sleep 0.02
+      else
+        sleep 1
+      end
+      count += 1
+    end
+    finalize
+  end
+
+  private
 
   def update
     new_odds = @fetcher.fetch_new_odds
@@ -39,25 +59,15 @@ class Uma
   end
 
   def finalize
-    return unless finished?
+    return unless @scheduler.finished?
 
     update_odds_list
     summarize(force: true)
   end
 
-  def finished?
-    @scheduler.finished?
-  end
-
-  def on_fire?
-    @scheduler.on_fire?
-  end
-
   def on_learning?
     @odds_list.size > 1 && !@scheduler.on_deadline? && !@converge
   end
-
-  private
 
   def init_runner(options)
     @manager = DataManager.new(options[:datafile])

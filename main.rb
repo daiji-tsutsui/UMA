@@ -13,20 +13,7 @@ uma = Uma.new(
   simulate:  true,
   simfile:   '20220612_EpsomCup',
 )
-
-count = 0
-until uma.finished?
-  if uma.on_fire?
-    uma.update
-  elsif uma.on_learning?
-    (count % 100).zero? ? uma.learn(check_loss: true) : uma.learn
-    sleep 0.02
-  else
-    sleep 1
-  end
-  count += 1
-end
-uma.finalize
+uma.run
 
 # p loss_list = analyzer.loss(odds_list, with_forecast: true)
 # # p analyzer.model

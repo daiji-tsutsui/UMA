@@ -7,11 +7,15 @@ UMA_SPEC_TEN_SECONDS = 10
 
 RSpec.describe Uma do
   before do
-    ENV['SIMULATOR_FIRST_WAIT'] = '1'
+    ENV['SIMULATOR_FIRST_WAIT'] = '0'
+    ENV['SIMULATOR_END_WAIT'] = '0'
+    ENV['SCHEDULER_DEADLINE_ROOM_UNTIL_FIRE'] = '0.2'
+    ENV['UMA_LEARNING_INTERVAL'] = '1'
     @obj = Uma.new(
       simulate: true,
       simfile:  'dummy_for_test',
     )
+    @filename = "./log/#{Time.now.strftime('%Y%m%d_%H%M')}_dummy_for_test.log"
   end
   after do
     FileUtils.rm(Dir.glob('./log/*_dummy_for_test.log'))
@@ -20,7 +24,7 @@ RSpec.describe Uma do
   describe '#new' do
     it 'adds an INFO log "Datamanager"' do
       pat_info_got_data = /INFO -- : DataManager got data: \[\{:at=>/
-      expect(is_included_in_log?(pat_info_got_data)).to be_truthy
+      expect(is_included_in_log?(@filename, pat_info_got_data)).to be_truthy
     end
     it 'gives false flags' do
       expect(@obj.converge).to be_falsey
@@ -28,76 +32,27 @@ RSpec.describe Uma do
     end
   end
 
-  describe '#on_fire?' do
+  describe '#run' do
     it 'adds an INFO log "Performed"' do
       pat_info_performed = /INFO -- : Performed!!/
-      expect do
-        sleep(1) until @obj.on_fire?
-      end.to change { is_included_in_log?(pat_info_performed) }.from(false).to(true)
+      expect { @obj.run }.to change { is_included_in_log?(@filename, pat_info_performed) }.from(false).to(true)
     end
-  end
-
-  describe '#update' do
     it 'adds an INFO log "Got odds"' do
       pat_info_got_odds = /INFO -- : Got odds:/
-      sleep(1) until @obj.on_fire?
-      expect do
-        @obj.update
-      end.to change { is_included_in_log?(pat_info_got_odds) }.from(false).to(true)
+      expect { @obj.run }.to change { is_included_in_log?(@filename, pat_info_got_odds) }.from(false).to(true)
     end
-  end
-
-  describe '#learn' do
-    before do
-      sleep(1) until @obj.on_fire?
-      @obj.update
+    it 'adds an INFO log "Summary"' do
+      pat_info_summary = /INFO -- : Summary:/
+      expect { @obj.run }.to change { is_included_in_log?(@filename, pat_info_summary) }.from(false).to(true)
     end
-
-    it 'changes summarized flag' do
-      expect do
-        @obj.learn
-      end.to change { @obj.summarized }.from(false).to(true)
-    end
-
-    context 'without args' do
-      it 'adds an INFO log "Summary"' do
-        pat_info_summary = /INFO -- : Summary:/
-        expect do
-          @obj.learn
-        end.to change { is_included_in_log?(pat_info_summary) }.from(false).to(true)
-      end
-      it 'does not add an INFO log "Loss"' do
-        pat_info_loss = /INFO -- : Loss:/
-        @obj.learn
-        expect(is_included_in_log?(pat_info_loss)).to be_falsey
-      end
-    end
-
-    context 'with check_loss flag true' do
-      it 'adds an INFO log "Summary"' do
-        pat_info_summary = /INFO -- : Summary:/
-        expect do
-          @obj.learn(check_loss: true)
-        end.to change { is_included_in_log?(pat_info_summary) }.from(false).to(true)
-      end
-      it 'adds an INFO log "Loss"' do
-        pat_info_loss = /INFO -- : Loss:/
-        expect do
-          @obj.learn(check_loss: true)
-        end.to change { is_included_in_log?(pat_info_loss) }.from(false).to(true)
-      end
-    end
-  end
-
-  describe '#finalize' do
-    it 'returns false until the schedule is finished' do
-      expect(@obj.finalize).to be_falsey
+    it 'adds an INFO log "Loss"' do
+      pat_info_loss = /INFO -- : Loss:/
+      expect { @obj.run }.to change { is_included_in_log?(@filename, pat_info_loss) }.from(false).to(true)
     end
   end
 end
 
-def is_included_in_log?(pattern)
-  filename = "./log/#{Time.now.strftime('%Y%m%d_%H%M')}_dummy_for_test.log"
+def is_included_in_log?(filename, pattern)
   File.open(filename, 'r') do |f|
     f.each_line do |line|
       return true if line =~ pattern

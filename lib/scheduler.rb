@@ -8,11 +8,8 @@ class Scheduler
 
   def initialize(logger)
     @logger = logger
-
-    input = YAML.load_file('schedule.yaml')
-    @start = input['start']
-    @end = input['end']
-    @table = schedule(input)
+    @deadline_room_until_fire = ENV.fetch('SCHEDULER_DEADLINE_ROOM_UNTIL_FIRE', 10).to_f
+    initialize_time_table
     @next = @table.shift
   end
 
@@ -33,7 +30,7 @@ class Scheduler
 
   def on_deadline?
     # TODO: 10[s]を環境変数にしたい
-    Time.now > @next - 10
+    Time.now > @next - @deadline_room_until_fire
   end
 
   def finished?
@@ -41,6 +38,13 @@ class Scheduler
   end
 
   private
+
+  def initialize_time_table
+    input = YAML.load_file('schedule.yaml')
+    @start = input['start']
+    @end = input['end']
+    @table = schedule(input)
+  end
 
   def schedule(input)
     result = []
