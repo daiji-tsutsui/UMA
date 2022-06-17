@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'yaml'
 
 # Read schedule.yaml and make schedule for fetching odds data
@@ -5,67 +7,72 @@ class Scheduler
   attr_accessor :next
 
   def initialize(logger)
-    # input = open('schedule.yaml', 'r') { |f| YAML.load(f) }
-    input = YAML.load_file('schedule.yaml')
-    @start = input['start']
-    @end = input['end']
-    @table = [@start]
     @logger = logger
-
-    indicator = @start.clone
-    rule = input['rule'].shift
-    while true do
-      if !rule['until'].nil?
-        if indicator >= rule['until']
-          rule = get_new_rule(input['rule'])
-          rule.nil? ? break : next
-        end
-      else
-        if rule['duration'] <= 0
-          rule = get_new_rule(input['rule'])
-          rule.nil? ? break : next
-        end
-        rule['duration'] -= rule['interval']
-      end
-      indicator += rule['interval']
-      break if indicator > @end
-      @table.push indicator
-    end
+    @deadline_room_until_fire = ENV.fetch('SCHEDULER_DEADLINE_ROOM_UNTIL_FIRE', 10).to_f
+    initialize_time_table
     @next = @table.shift
   end
 
-  #TODO privateでよくない？
-  def get_new_rule(rules)
-    rules.shift
-  end
-
   def wait
-    return if is_finished
-    while true do
-      break if is_on_fire
-      sleep 10
-    end
+    return if finished?
+
+    sleep 10 until on_fire?
   end
 
-  def is_on_fire
-    return false if is_finished
-    if Time.now > @next
-      @next = @table.shift
-      @next = @end if @next.nil?
-      @logger.info "Performed!! Next will be performed at #{@next}"
-      return true
-    end
-    false
+  def on_fire?
+    return false if finished? || Time.now <= @next
+
+    # TODO: ブロックを受け取って本当にperformする仕組みにする？
+    # とりあえずbooleanのメソッドでperformしてるのは変
+    perform
+    true
   end
 
-  def is_on_deadline
-    if Time.now > @next - 10
-      return true
-    end
-    false
+  def on_deadline?
+    Time.now > @next - @deadline_room_until_fire
   end
 
-  def is_finished
+  def finished?
     Time.now > @end
+  end
+
+  private
+
+  def initialize_time_table
+    input = YAML.load_file('schedule.yaml')
+    @start = input['start']
+    @end = input['end']
+    @table = schedule(input)
+  end
+
+  def schedule(input)
+    result = []
+    rule = input['rule'].shift
+    indicator = @start.clone
+    while indicator < @end
+      result.push(indicator)
+      rule = input['rule'].shift if require_next_rule?(rule, indicator)
+      break if rule.nil?
+
+      indicator = calculate_next_schedule(rule, indicator)
+    end
+    result
+  end
+
+  def require_next_rule?(rule, indicator)
+    return true if !rule['duration'].nil? && rule['duration'] <= 0
+    return true if !rule['until'].nil? && indicator >= rule['until']
+
+    false
+  end
+
+  def calculate_next_schedule(rule, indicator)
+    rule['duration'] -= rule['interval'] unless rule['duration'].nil?
+    indicator + rule['interval']
+  end
+
+  def perform
+    @next = @table.shift || @end
+    @logger.info "Performed!! Next will be performed at #{@next}"
   end
 end

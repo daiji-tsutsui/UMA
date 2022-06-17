@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'probability'
 
 RSpec.describe Probability do
@@ -49,7 +51,7 @@ RSpec.describe Probability do
     end
   end
 
-  describe '#move' do
+  describe '#move!' do
     before do
       @ini = [0.125, 0.375, 0.5]
       @src = Probability.new(@ini)
@@ -57,25 +59,25 @@ RSpec.describe Probability do
 
     it 'moves self in the meaning of m-parallel transportation' do
       v = [0.01, 0.01]
-      @src.move(v)
+      @src.move!(v)
       expect(@src[0]).to be_within(1e-6).of(0.125 - 0.02)
       expect(@src[1]).to be_within(1e-6).of(0.375 + 0.01)
       expect(@src[2]).to be_within(1e-6).of(0.5 + 0.01)
     end
     it 'does not move self when v is zero' do
       v = [0.0, 0.0]
-      @src.move(v)
+      @src.move!(v)
       expect(@src).to eq @ini
     end
     it 'warns if the result is invalid' do
       v = [1e+15, 1e+15]
       name = 'name'
-      warn = @src.move(v, name)
+      warn = @src.move!(v, name)
       expect(warn).to eq "Probability 'name' is maybe not normalized"
     end
   end
 
-  describe '#move_theta' do
+  describe '#move_in_theta!' do
     before do
       @ini = [0.125, 0.375, 0.5]
       @src = Probability.new(@ini)
@@ -84,7 +86,7 @@ RSpec.describe Probability do
     describe 'moves self in the meaning of e-parallel transportation' do
       before do
         v = [1.0, 1.0]
-        @src.move_theta(v)
+        @src.move_in_theta!(v)
       end
 
       it 'gives result close to the initial value' do
@@ -98,18 +100,18 @@ RSpec.describe Probability do
     end
     it 'does not move self when v is 0' do
       v = [0.0, 0.0]
-      @src.move_theta(v)
+      @src.move_in_theta!(v)
       expect(@src).to eq @ini
     end
     it 'ignores the arg name' do
       v = [2.0, 3.0]
       name = 'name'
-      @src.move_theta(v, name)
+      @src.move_in_theta!(v, name)
       expect(warn).to eq nil
     end
   end
 
-  describe '#extend' do
+  describe '#extend_to!' do
     before do
       @ini = [1.0, 2.0, 3.0]
       @src = Probability.new(@ini)
@@ -117,7 +119,7 @@ RSpec.describe Probability do
 
     context 'extends self' do
       before do
-        @src.extend(5)
+        @src.extend_to!(5)
       end
       it 'with keeping the summation 1' do
         expect(@src.sum).to eq 1.0
@@ -130,37 +132,39 @@ RSpec.describe Probability do
       end
     end
     it 'raises exception when trg_size is less than self size' do
-      expect{ @src.extend(2) }.to raise_error(ArgumentError)
+      expect { @src.extend_to!(2) }.to raise_error(ArgumentError)
     end
   end
 
-  describe '#new_from_odds' do
-    before do
-      @arg = [0.1, 0.3, 0.4]
-      @vect = Probability.new_from_odds(@arg)
+  describe 'class methods' do
+    describe '#new_from_odds' do
+      before do
+        @arg = [0.1, 0.3, 0.4]
+        @vect = Probability.new_from_odds(@arg)
+      end
+
+      it 'gives the summation 1' do
+        expect(@vect.sum).to eq 1.0
+      end
+      it 'gives the inverse ratio of arg' do
+        prod = @vect.schur(@arg)
+        expect(prod[0]).to within(1e-6).of(prod[1])
+        expect(prod[0]).to within(1e-6).of(prod[-1])
+      end
     end
 
-    it 'gives the summation 1' do
-      expect(@vect.sum).to eq 1.0
-    end
-    it 'gives the inverse ratio of arg' do
-      prod = @vect.map.with_index { |v, i| v * @arg[i] }
-      expect(prod[0]).to within(1e-6).of(prod[1])
-      expect(prod[0]).to within(1e-6).of(prod[-1])
-    end
-  end
-
-  describe '#delta' do
-    it 'returns 1.0 when i == j' do
-      expect(Probability.delta(1, 1)).to eq 1.0
-      expect(Probability.delta(2, 2)).to eq 1.0
-      expect(Probability.delta(5, 5)).to eq 1.0
-    end
-    it 'returns 0.0 when i != j' do
-      expect(Probability.delta(1, 2)).to eq 0.0
-      expect(Probability.delta(2, 4)).to eq 0.0
-      expect(Probability.delta(3, 1)).to eq 0.0
-      expect(Probability.delta(5, 2)).to eq 0.0
+    describe '#delta' do
+      it 'returns 1.0 when i == j' do
+        expect(Probability.delta(1, 1)).to eq 1.0
+        expect(Probability.delta(2, 2)).to eq 1.0
+        expect(Probability.delta(5, 5)).to eq 1.0
+      end
+      it 'returns 0.0 when i != j' do
+        expect(Probability.delta(1, 2)).to eq 0.0
+        expect(Probability.delta(2, 4)).to eq 0.0
+        expect(Probability.delta(3, 1)).to eq 0.0
+        expect(Probability.delta(5, 2)).to eq 0.0
+      end
     end
   end
 end

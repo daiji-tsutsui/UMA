@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require 'site_prism'
 require 'capybara/dsl'
 
 module Jra
-
   # 今週のオッズボタン用
   SATURDAY = 0
   SUNDAY = 1
@@ -81,7 +82,7 @@ module Jra
     end
 
     def get_uma_name
-      odds_table.all(:css, 'tr>td.bamei>a').map { |bamei| bamei.text }
+      odds_table.all(:css, 'tr>td.bamei>a').map(&:text)
     end
 
     def get_tan_odds

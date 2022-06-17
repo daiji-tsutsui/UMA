@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'jra/pages'
 
 Capybara.default_driver = :selenium_chrome_headless
@@ -20,6 +22,6 @@ RSpec.describe Jra do
     end
   end
 
-  describe 'OddsPage' do
-  end
+  # describe 'OddsPage' do
+  # end
 end

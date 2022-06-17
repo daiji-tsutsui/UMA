@@ -1,110 +1,129 @@
-require 'logger'
-require "./lib/report_maker"
-require "./lib/data_manager"
-require "./lib/scheduler"
-require "./lib/odds_analyzer"
-require "./lib/odds_fetcher"
-require "./lib/simulator"
+# frozen_string_literal: true
 
+require 'logger'
+require './lib/report_maker'
+require './lib/data_manager'
+require './lib/scheduler'
+require './lib/odds_analyzer'
+require './lib/odds_fetcher'
+require './lib/simulator'
+
+# Wrapper class which integrates the object classes above
 class Uma
   attr_accessor :converge, :summarized
 
   def initialize(**options)
     @simulate = options[:simulate]
-    unless @simulate
-      @manager = DataManager.new(options[:datafile])
-      @logger = Logger.new("./log/#{Time.now.strftime("%Y%m%d_%H%M")}.log")
-      @fetcher = OddsFetcher.new(options)
-      @fetcher.odds = @manager.data
-      @scheduler = Scheduler.new(@logger)
-    else
-      @manager = DataManager.new(options[:simfile], simulate: true)
-      @logger = Logger.new("./log/#{Time.now.strftime("%Y%m%d_%H%M")}_#{options[:simfile]}.log")
-      @fetcher = Simulator.new(@logger, @manager.data)
-      @scheduler = @fetcher
-    end
+    @simulate ? init_simulator(options[:simfile]) : init_runner(options)
     @analyzer = OddsAnalyzer.new(@logger)
     @summarizer = ReportMaker.new(@analyzer, @logger)
-
-    get_odds
-    @logger.info "DataManager got data: #{@manager.data}"
+    @learn_interval = ENV.fetch('UMA_LEARNING_INTERVAL', 100).to_i
+    update_odds_list
     init_params
+    @logger.info "DataManager got data: #{@manager.data}"
   end
 
+  # TODO: 100とか0.02とか全部環境変数化したい
   def run
-    result = @fetcher.run
-    @logger.info result unless result.nil?
-    get_odds
+    count = 0
+    until @scheduler.finished?
+      if @scheduler.on_fire?
+        update
+      elsif on_learning?
+        (count % @learn_interval).zero? ? learn(check_loss: true) : learn
+        sleep 0.02
+      else
+        sleep 1
+      end
+      count += 1
+    end
+    finalize
+  end
+
+  private
+
+  def update
+    summarize(force: true)
+    new_odds = @fetcher.fetch_new_odds
+    @manager.receive(new_odds) unless @simulate
+    update_odds_list
     init_flags
   end
 
   def learn(check_loss: false)
     @analyzer.update_params(@odds_list, with_forecast: true)
     summarize
-    if check_loss
-      loss = @analyzer.loss(@odds_list).sum
-      @logger.info "Loss: #{loss}"
-      summarize(force: true) if check_conv(loss)
-      @prev_loss = loss
-    end
-  end
+    return unless check_loss
 
-  def summarize(force: false)
-    if force || !@summarized
-      @summarizer.summarize(@odds_list[-1])
-    end
-    @summarized = true
+    loss = @analyzer.loss(@odds_list).sum
+    logging_loss(loss)
   end
 
   def finalize
-    if is_finished
-      get_odds
-      odds = @odds_list[-1]
-      @summarizer.summarize(odds) unless odds.nil?
-      return true
-    end
-    false
+    return unless @scheduler.finished?
+
+    update_odds_list
+    summarize(force: true)
   end
 
-  def is_finished
-    @scheduler.is_finished
+  def on_learning?
+    @odds_list.size > 1 && !@scheduler.on_deadline? && !@converge
   end
 
-  def is_on_fire
-    @scheduler.is_on_fire
+  def init_runner(options)
+    @manager = DataManager.new(options[:datafile])
+    @logger = Logger.new("./log/#{Time.now.strftime('%Y%m%d_%H%M')}.log")
+    # TODO: options渡すのよくない
+    @fetcher = OddsFetcher.new(@logger, options)
+    @scheduler = Scheduler.new(@logger)
   end
 
-  def is_on_learning
-    @odds_list.size > 1 && !@scheduler.is_on_deadline && !@converge
+  def init_simulator(filename)
+    @manager = DataManager.new(filename, simulate: true)
+    @logger = Logger.new("./log/#{Time.now.strftime('%Y%m%d_%H%M')}_#{filename}.log")
+    @fetcher = Simulator.new(@logger, @manager.data)
+    @scheduler = @fetcher
+  end
+
+  def summarize(force: false)
+    @summarizer.summarize(@odds_list[-1]) if force || !@summarized
+    @summarized = true
+  end
+
+  def init_params
+    init_flags
+    @prev_loss = 0.0
+  end
+
+  def init_flags
+    @converge = false
+    @summarized = false
+  end
+
+  def update_odds_list
+    @odds_list = (@simulate ? @fetcher.odds : @manager.odds)
+    save
   end
 
   def save
     @manager.save unless @simulate
   end
 
-  private
+  def logging_loss(loss)
+    @logger.info "Loss: #{loss}"
+    summarize(force: true) if check_conv(loss)
+    store_loss(loss)
+  end
 
-    def init_flags
-      @converge = false
-      @summarized = false
-    end
+  def check_conv(loss)
+    return false unless (loss - @prev_loss).abs < 1e-5
 
-    def init_params
-      init_flags
-      @prev_loss = 0.0
-    end
+    @converge = true
+    @logger.info 'Fitting converges!'
+    true
+  end
 
-    def get_odds
-      @odds_list = (@simulate ? @fetcher.get_odds : @manager.odds)
-      save
-    end
-
-    def check_conv(loss)
-      if (loss - @prev_loss).abs < 1e-5
-        @converge = true
-        @logger.info "Fitting converges!"
-        return true
-      end
-      false
-    end
+  def store_loss(loss)
+    @prev_loss = loss
+  end
 end

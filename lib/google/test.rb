@@ -1,4 +1,6 @@
-require "./lib/google/google"
+# frozen_string_literal: true
+
+require './lib/google/google'
 
 def test_scraping(searc_query)
   home = Google::Home.new

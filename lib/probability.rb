@@ -1,30 +1,27 @@
-# Presentation for probability distributions
-class Probability < Array
+# frozen_string_literal: true
 
+require './lib/positives'
+
+# Presentation for probability distributions
+class Probability < Positives
   def initialize(w = [])
-    self.concat(w)
-    self.concat([1.0]) if self.empty?
+    super(w)
     normalize
   end
 
-  def kl_div(q)
-    f = self.map.with_index { |p_i, i| Math.log(p_i) - Math.log(q[i]) }
-    expectation(f)
-  end
-
   # v: eta-vector
-  def move(v, name = nil)
+  def move!(v, name = nil)
     v.each.with_index(1) do |v_i, i|
       self[i] += v_i
       self[0] -= v_i
     end
-    warn = check_total(name)
+    warn = validate_total(name)
     normalize
     warn
   end
 
   # v: eta-vector
-  def move_theta(v, name = nil)
+  def move_in_theta!(v, _name = nil)
     v_theta = fisher.map do |row|
       row.map.with_index { |entry, j| entry * v[j] }.sum
     end
@@ -35,7 +32,7 @@ class Probability < Array
     nil
   end
 
-  def extend(trg_size)
+  def extend_to!(trg_size)
     self.map! { |p_i| p_i * self.size.to_f / trg_size.to_f }
     ext = Array.new(trg_size - self.size, 1.0 / trg_size.to_f)
     self.concat(ext)
@@ -43,13 +40,18 @@ class Probability < Array
   end
 
   def expectation(f)
-    self.map.with_index { |r, i| r * f[i] }.sum
+    dot(f)
   end
 
-  def check(name = nil)
+  def kl_div(q)
+    f = self.map.with_index { |p_i, i| Math.log(p_i) - Math.log(q[i]) }
+    expectation(f)
+  end
+
+  def validate(name = nil)
     [
-      check_negative(name),
-      check_total(name),
+      validate_negative(name),
+      validate_total(name),
     ]
   end
 
@@ -61,45 +63,45 @@ class Probability < Array
 
     def delta(i, j)
       return 1.0 if i == j
+
       0.0
     end
   end
 
-
   private
 
-    def normalize
-      total = self.sum
-      self.map! { |r| r / total }
-    end
+  def normalize
+    total = self.sum
+    self.map! { |r| r / total }
+  end
 
-    def check_negative(name = nil)
-      warn = nil
-      self.each do |p_i|
-        if p_i < 0
-          warn = "Probability \'#{name}\' maybe has a negative entry"
-          break
-        end
-      end
-      warn
-    end
-
-    def check_total(name = nil)
-      if (self.sum - 1.0).abs > 0.05
-        "Probability \'#{name}\' is maybe not normalized"
+  def validate_negative(name = nil)
+    warn = nil
+    self.each do |p_i|
+      if p_i.negative?
+        warn = "Probability \'#{name}\' maybe has a negative entry"
+        break
       end
     end
+    warn
+  end
 
-    def fisher
-      size1 = self.size - 1
-      matrix = Array.new(size1)
-      (0..size1 - 1).each do |i|
-        matrix[i] = Array.new(size1)
-        (0..size1 - 1).each do |j|
-          matrix[i][j] = -self[i + 1] * self[j + 1]
-          matrix[i][j] += self[i + 1] if i == j
-        end
+  def validate_total(name = nil)
+    return unless (self.sum - 1.0).abs > 0.05
+
+    "Probability \'#{name}\' is maybe not normalized"
+  end
+
+  def fisher
+    size1 = self.size - 1
+    matrix = Array.new(size1)
+    (0..size1 - 1).each do |i|
+      matrix[i] = Array.new(size1, 0.0)
+      (0..size1 - 1).each do |j|
+        matrix[i][j] = self[i + 1] if i == j
+        matrix[i][j] -= self[i + 1] * self[j + 1]
       end
-      matrix
     end
+    matrix
+  end
 end

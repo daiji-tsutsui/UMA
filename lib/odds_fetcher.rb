@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'capybara'
 require 'selenium-webdriver'
 require './lib/jra/pages'
@@ -6,19 +8,20 @@ require './lib/jra/pages'
 class OddsFetcher
   attr_accessor :odds
 
-  def initialize(**options)
+  def initialize(logger, **options)
     @odds = []
-    @driver = options[:driver]  || :selenium_chrome_headless
-    @day    = options[:day]     || Jra::SUNDAY
-    @course = options[:course]  || '阪神'
-    @race   = options[:race]    || Jra::RACE_1
-    @duplicate = options[:duplicate] || false
+    @logger = logger
+    @driver     = options[:driver]    || :selenium_chrome_headless
+    @day        = options[:day]       || Jra::SUNDAY
+    @course     = options[:course]    || '阪神'
+    @race       = options[:race]      || Jra::RACE_11
+    @duplicate  = options[:duplicate] || false
   end
 
-  def run
-    Capybara.default_driver = @driver
+  def fetch_new_odds
     fetched = false
-    Capybara::Session.new(@driver).tap do |s|
+    Capybara.default_driver = @driver
+    Capybara::Session.new(@driver).tap do
       # トップページ
       top_page = Jra::TopPage.new
       top_page.load
@@ -30,21 +33,25 @@ class OddsFetcher
       current_odds = single_odds_page.get_tan_odds
       if @duplicate || @odds[-1].nil? || current_odds != @odds[-1][:data]
         @odds.push({
-          at: Time.now,
+          at:   Time.now,
           data: current_odds,
         })
         fetched = true
       end
     end
-    fetched ? log : "Same odds! Skipped!"
+    newest_odds_with_logging(fetched)
   end
 
-  def log
-    odds = @odds[-1]
-    unless odds.nil?
-      return "Got odds: #{odds[:data]}"
+  private
+
+  def newest_odds_with_logging(fetched)
+    unless fetched
+      @logger.info 'Same odds! Skipped!'
+      return nil
     end
-    "Fetcher has no odds!!"
+    odds = @odds[-1]
+    log = odds.nil? ? 'Fetcher has no odds!!' : "Got odds: #{odds[:data]}"
+    @logger.info log
+    odds
   end
-
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'yaml'
 
 # Read and write odds stream data
@@ -7,15 +9,12 @@ class DataManager
   def initialize(filename, **options)
     base_path = options[:base_path] || './data'
     simulate = options[:simulate] || false
-    unless simulate
-      @filename = "#{base_path}/#{Time.now.strftime("%Y%m%d")}_#{filename}.yml"
-    else
-      @filename = "#{base_path}/#{filename}.yml"
-    end
-    @data = []
-    if File.exist? @filename
-      @data = open(@filename, 'r') { |f| YAML.load(f) }
-    end
+    @filename = if simulate
+                  "#{base_path}/#{filename}.yml"
+                else
+                  "#{base_path}/#{Time.now.strftime('%Y%m%d')}_#{filename}.yml"
+                end
+    @data = File.exist?(@filename) ? YAML.load_file(@filename) : []
   end
 
   def save
@@ -26,5 +25,9 @@ class DataManager
 
   def odds
     @data.map { |record| record[:data] }
+  end
+
+  def receive(new_data)
+    @data.push new_data
   end
 end

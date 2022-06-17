@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'site_prism'
 require 'capybara/dsl'
 
@@ -15,17 +17,17 @@ module Google
   end
 
   class SearchResults < SitePrism::Page
-    set_url_matcher /google.com\/search\?.*/
+    set_url_matcher(%r{google.com/search\?.*})
 
-    elements :links, "a"
-    elements :titles, "h3"
+    elements :links, 'a'
+    elements :titles, 'h3'
 
     def search_result_links
       links.map { |lk| lk['href'] }
     end
 
     def title_texts
-      titles.map { |t| t.text }
+      titles.map(&:text)
     end
   end
 end

@@ -1,0 +1,54 @@
+AllCops:
+  NewCops: enable
+  SuggestExtensions: false
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/*_spec.rb
+Metrics/MethodLength:
+  Exclude:
+    - spec/*_spec.rb
+    - lib/odds_fetcher.rb
+Metrics/AbcSize:
+  Exclude:
+    - spec/*_spec.rb
+    - lib/odds_fetcher.rb
+
+Naming/MethodParameterName:
+  Exclude:
+    - lib/probability.rb
+    - lib/positives.rb
+    - lib/odds_analyzer.rb
+Naming/AccessorMethodName:
+  Exclude:
+    - lib/jra/pages.rb
+
+Style/BlockComments:
+  Exclude:
+    - spec/spec_helper.rb
+Style/RedundantSelf:
+  Exclude:
+    - lib/probability.rb
+    - lib/positives.rb
+Style/Documentation:
+  Exclude:
+    - lib/google/*
+Style/FormatString:
+  EnforcedStyle: sprintf
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma
+Style/StringConcatenation:
+  Mode: conservative
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+Layout/HashAlignment:
+  EnforcedColonStyle: table
+
+Lint/MissingSuper:
+  Exclude:
+    - lib/simulator.rb

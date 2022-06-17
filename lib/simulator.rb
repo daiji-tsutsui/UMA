@@ -1,69 +1,54 @@
+# frozen_string_literal: true
+
+require './lib/scheduler'
+
 # Mock object for OddsFetcher and Scheduler
-class Simulator
-  attr_accessor :odds         # 実行予定データキュー
-  attr_accessor :sim_odds     # 実行済みデータキュー
-  attr_accessor :next
+class Simulator < Scheduler
+  # queue:     実行予定データキュー
+  # simulated: 実行済みデータキュー
+  attr_accessor :queue, :simulated
 
   def initialize(logger, odds_list)
-    @odds = odds_list
-    @sim_odds = []
-    @logger = logger
-    schedule
+    @queue = odds_list
+    @simulated = []
+    @first_wait = ENV.fetch('SIMULATOR_FIRST_WAIT', 60).to_i
+    @end_wait = ENV.fetch('SIMULATOR_END_WAIT', 20).to_i
+    super(logger)
   end
 
-  def run
-    if @odds.size > 0
-      current = @odds.shift
-      @sim_odds.push current
+  def fetch_new_odds
+    if @queue.empty?
+      @logger.warn 'Simulator has no odds data in execution queue'
     else
-      @logger.warn "Simulator has no odds data in exe queue"
+      new_odds = @queue.shift
+      @simulated.push new_odds
     end
-    log
+    logging(@simulated[-1])
   end
 
-  def get_odds
-    @sim_odds.map { |record| record[:data] }
-  end
-
-  def is_on_fire
-    return false if is_finished
-    if Time.now > @next
-      @next = @table.shift
-      @next = @end if @next.nil?
-      @logger.info "Performed!! Next will be performed at #{@next}"
-      return true
-    end
-    false
-  end
-
-  def is_on_deadline
-    if Time.now > @next - 10
-      return true
-    end
-    false
-  end
-
-  def is_finished
-    Time.now > @end
+  def odds
+    @simulated.map { |record| record[:data] }
   end
 
   private
 
-    def schedule
-      start = @odds[0][:at]
-      inc = Time.now + 60 - start
-      @table = @odds.map { |record| record[:at] + inc }
-      @start = @table[0]
-      @end = @table[-1] + 20
-      @next = @table.shift
-    end
+  def initialize_time_table
+    @table = schedule(@queue)
+    @start = @table[0]
+    @end = @table[-1] + @end_wait
+  end
 
-    def log
-      odds = @sim_odds[-1]
-      unless odds.nil?
-        return "Got odds: #{odds[:data]}"
-      end
-      "Simulator has no odds!!"
-    end
+  def schedule(odds_list)
+    start = odds_list[0][:at]
+    inc = Time.now + @first_wait - start
+    odds_list.map { |record| record[:at] + inc }
+  end
 
+  def logging(odds)
+    unless odds.nil?
+      @logger.info "Got odds: #{odds[:data]}"
+      return
+    end
+    @logger.warn 'Simulator has no odds!!'
+  end
 end
