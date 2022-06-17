@@ -31,34 +31,21 @@ class ReportMaker
   private
 
   def summarize_time_series
-    col_num = @analyzer.a.size
-    summary = columns_time_series(col_num)
-    summary += row_time_series(@analyzer.a, col_num, 'weight')
-    summary += row_time_series(@analyzer.b, col_num, 'certainty')
+    summary = columns_time_series(@analyzer.a.size)
+    summary += row_time_series(@analyzer.a, 'weight')
+    summary += row_time_series(@analyzer.b, 'certainty')
     summary
   end
 
   def summarize_horse_info(odds)
-    col_num = @analyzer.t.size
     opt_odds = @analyzer.t.map { |r| JRA_RETURN_RATE / r }
-    summary = columns_horse_info(col_num)
-    summary += row_horse_info(@analyzer.t, col_num, 'probability', format: '%9.5f')
-    summary += row_horse_info(odds, col_num, 'current odds', format: '%9.1f')
-    summary += row_horse_info(opt_odds, col_num, 'optimal odds', format: '%9.1f')
-    summary += row_horse_info(@analyzer.strat(odds, 1.0),
-                              col_num,
-                              'weak strat',
-                              format: '%9.5f',
-                              func:   @analyzer.t.schur(odds))
-    summary += row_horse_info(@analyzer.strat(odds, 10.0),
-                              col_num,
-                              'strong strat',
-                              format: '%9.5f',
-                              func:   @analyzer.t.schur(odds))
-    summary += row_horse_info(@analyzer.probable_strat(odds),
-                              col_num,
-                              'probable st.',
-                              format: '%9.5f')
+    summary = columns_horse_info(@analyzer.t.size)
+    summary += row_horse_info(@analyzer.t, 'probability', '%9.5f')
+    summary += row_horse_info(odds, 'current odds', '%9.1f')
+    summary += row_horse_info(opt_odds, 'optimal odds', '%9.1f')
+    summary += row_horse_info(@analyzer.strat(odds, 1.0), 'weak strat', '%9.5f', @analyzer.t.schur(odds))
+    summary += row_horse_info(@analyzer.strat(odds, 10.0), 'strong strat', '%9.5f', @analyzer.t.schur(odds))
+    summary += row_horse_info(@analyzer.probable_strat(odds), 'probable st.', '%9.5f')
     summary
   end
 
@@ -72,10 +59,11 @@ class ReportMaker
     columns
   end
 
-  def row_time_series(array, col_num, label, format: FORMAT_F_TIME)
+  def row_time_series(array, label, format: FORMAT_F_TIME)
     row = label.rjust(LABEL_STRLEN_TIME) + ' |'
-    col_num.times do |i|
-      row += sprintf(format, array[i]) + ' |'
+    array.each do |elem|
+      row += sprintf(format, elem)
+      row += ' |'
     end
     row += "\n"
     row
@@ -92,14 +80,11 @@ class ReportMaker
     columns
   end
 
-  def row_horse_info(array, col_num, label, format: FORMAT_F_HORSE, func: nil)
+  def row_horse_info(array, label, format = FORMAT_F_HORSE, func = nil)
     row = label.rjust(LABEL_STRLEN_HORSE) + ' |'
-    col_num.times do |i|
-      row += if array[i].nil?
-               (' ' * FORMAT_STRLEN_HORSE) + ' |'
-             else
-               sprintf(format, array[i]) + ' |'
-             end
+    array.each do |elem|
+      row += elem.nil? ? (' ' * FORMAT_STRLEN_HORSE) : sprintf(format, elem)
+      row += ' |'
     end
     row += sprintf('%9.5f', array.expectation(func)) if array.instance_of?(Probability) && !func.nil?
     row += "\n"
