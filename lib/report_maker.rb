@@ -14,6 +14,8 @@ class ReportMaker
   FORMAT_STRLEN_HORSE = 9
   LABEL_STRLEN_HORSE = 14
   JRA_RETURN_RATE = 0.8
+  VISUALIZE_HOUSE_NUM = 8
+  VISUALIZE_MAX_LENGTH = 50
 
   def initialize(analyzer, logger)
     @analyzer = analyzer
@@ -21,9 +23,10 @@ class ReportMaker
   end
 
   def summarize(odds)
-    @report = "Summary:\n\n"
-    @report += summarize_time_series + "\n"
+    @report = "Summary:\n"
+    @report += summarize_time_series
     @report += summarize_horse_info(odds) unless @analyzer.t.nil?
+    @report += visualize_horse_info(odds) unless @analyzer.t.nil?
     @logger.info @report
     @report
   end
@@ -31,7 +34,8 @@ class ReportMaker
   private
 
   def summarize_time_series
-    summary = columns_time_series(@analyzer.a.size)
+    summary = "\n"
+    summary += columns_time_series(@analyzer.a.size)
     summary += row_time_series(@analyzer.a, 'weight')
     summary += row_time_series(@analyzer.b, 'certainty')
     summary
@@ -39,13 +43,21 @@ class ReportMaker
 
   def summarize_horse_info(odds)
     opt_odds = @analyzer.t.map { |r| JRA_RETURN_RATE / r }
-    summary = columns_horse_info(@analyzer.t.size)
+    summary = "\n"
+    summary += columns_horse_info(@analyzer.t.size)
     summary += row_horse_info(@analyzer.t, 'probability', '%9.5f')
     summary += row_horse_info(odds, 'current odds', '%9.1f')
     summary += row_horse_info(opt_odds, 'optimal odds', '%9.1f')
     summary += row_horse_info(@analyzer.strat(odds, 1.0), 'weak strat', '%9.5f', @analyzer.t.schur(odds))
     summary += row_horse_info(@analyzer.strat(odds, 10.0), 'strong strat', '%9.5f', @analyzer.t.schur(odds))
     summary += row_horse_info(@analyzer.probable_strat(odds), 'probable st.', '%9.5f')
+    summary
+  end
+
+  def visualize_horse_info(odds)
+    exp_gain = @analyzer.t.schur(odds)
+    summary = "\n"
+    summary += graph_horse_info(exp_gain, 'Expected Gain')
     summary
   end
 
@@ -88,6 +100,20 @@ class ReportMaker
     end
     row += sprintf('%9.5f', array.expectation(func)) if array.instance_of?(Probability) && !func.nil?
     row += "\n"
+    row
+  end
+
+  def graph_horse_info(array, label)
+    data = array.map.with_index { |r, i| [i, r] }
+                .sort { |a, b| b[1] <=> a[1] }
+    row = "#{label} ======\n"
+    row_num = [array.size, VISUALIZE_HOUSE_NUM].min
+    row_num.times do |i|
+      quantity = ((data[i][1] / data[0][1]) * VISUALIZE_MAX_LENGTH).to_i
+      row += sprintf('%5d', data[i][0] + 1) + ' | '
+      row += ('*' * quantity) + (' ' * (VISUALIZE_MAX_LENGTH - quantity)) + ' | '
+      row += sprintf('%9.5f', data[i][1]) + "\n"
+    end
     row
   end
 end
