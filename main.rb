@@ -4,14 +4,14 @@ require './lib/uma'
 
 # https://sp.jra.jp
 uma = Uma.new(
-  driver:     :selenium_chrome_headless,
-  day:        Jra::SUNDAY,
-  course:     '東京',
-  race:       Jra::RACE_12,
-  datafile:   '20220612-R12',
-  duplicate:  false, # true: オッズの更新がなくても取得する
-  simulate:   false,
-  simfile:    '20211227_test1'
+  driver:    :selenium_chrome_headless,
+  day:       Jra::SATURDAY,
+  course:    '阪神',
+  race:      Jra::RACE_11,
+  datafile:  'YonegoS',
+  duplicate: false, # true: オッズの更新がなくても取得する
+  # simulate:   false,
+  # simfile:    '20211227_test1'
 )
 uma.run
 

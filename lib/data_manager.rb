@@ -28,6 +28,6 @@ class DataManager
   end
 
   def receive(new_data)
-    @data.push new_data
+    @data.push new_data unless new_data.nil?
   end
 end
