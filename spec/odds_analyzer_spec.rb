@@ -8,7 +8,7 @@ RSpec.describe OddsAnalyzer do
   describe '#new' do
     it 'gives initial parameters' do
       obj = OddsAnalyzer.new
-      expect(obj.a.class.to_s).to eq 'Probability'
+      expect(obj.a.class.to_s).to eq 'ImportanceRatio'
       expect(obj.a).to            eq [1.0]
       expect(obj.b.class.to_s).to eq 'Positives'
       expect(obj.b).to            eq [1.0]
