@@ -10,7 +10,7 @@ RSpec.describe ReportMaker do
     allow(@analyzer).to receive(:a).and_return(dummy_a)
     allow(@analyzer).to receive(:b).and_return(dummy_b)
     allow(@analyzer).to receive(:t).and_return(dummy_t)
-    allow(@analyzer).to receive(:strat).and_return(dummy_strat)
+    allow(@analyzer).to receive(:strategy).and_return(dummy_strat)
     allow(@analyzer).to receive(:probable_strat).and_return(dummy_pstrat)
   end
 

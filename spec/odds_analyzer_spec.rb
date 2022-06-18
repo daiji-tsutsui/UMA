@@ -23,30 +23,30 @@ RSpec.describe OddsAnalyzer do
     context 'for a biased odds' do
       before do
         @odds = [3.2, 3.2, 1.6]
-        @t = Probability.new([0.3, 0.1, 0.5])
         @obj = OddsAnalyzer.new
+        @obj.t = Probability.new([0.3, 0.1, 0.5])
       end
 
       it 'gives a probability' do
         b = 1.0
-        res = @obj.strategy(@odds, @t, b)
+        res = @obj.strategy(@odds, b)
         expect(res.class.to_s).to eq 'Probability'
         expect(res.size).to eq 3
       end
       it 'with larger b gives larger expected gain' do
         b1 = 1.0
         b2 = 2.0
-        res1 = @obj.strategy(@odds, @t, b1)
-        res2 = @obj.strategy(@odds, @t, b2)
-        gain1 = @t.expectation(res1.schur(@odds))
-        gain2 = @t.expectation(res2.schur(@odds))
+        res1 = @obj.strategy(@odds, b1)
+        res2 = @obj.strategy(@odds, b2)
+        gain1 = @obj.t.expectation(res1.schur(@odds))
+        gain2 = @obj.t.expectation(res2.schur(@odds))
         expect(gain1 < gain2).to be_truthy
       end
       it 'with larger b gives more peaky distribution' do
         b1 = 1.0
         b2 = 2.0
-        res1 = @obj.strategy(@odds, @t, b1)
-        res2 = @obj.strategy(@odds, @t, b2)
+        res1 = @obj.strategy(@odds, b1)
+        res2 = @obj.strategy(@odds, b2)
         expect(res1.max < res2.max).to be_truthy
       end
     end
@@ -54,25 +54,25 @@ RSpec.describe OddsAnalyzer do
     context 'for an unbiased odds' do
       before do
         @odds = [4.0, 2.0, 2.0]
-        @t = Probability.new([0.2, 0.4, 0.4])
         @obj = OddsAnalyzer.new
+        @obj.t = Probability.new([0.2, 0.4, 0.4])
       end
 
       it 'gives expected gain equal to return rate' do
         b1 = 1.0
         b2 = 2.0
-        res1 = @obj.strategy(@odds, @t, b1)
-        res2 = @obj.strategy(@odds, @t, b2)
-        gain1 = @t.expectation(res1.schur(@odds))
-        gain2 = @t.expectation(res2.schur(@odds))
+        res1 = @obj.strategy(@odds, b1)
+        res2 = @obj.strategy(@odds, b2)
+        gain1 = @obj.t.expectation(res1.schur(@odds))
+        gain2 = @obj.t.expectation(res2.schur(@odds))
         expect(gain1).to eq RETURN_RATE
         expect(gain2).to eq RETURN_RATE
       end
       it 'gives a uniform distribution for all b' do
         b1 = 1.0
         b2 = 2.0
-        res1 = @obj.strategy(@odds, @t, b1)
-        res2 = @obj.strategy(@odds, @t, b2)
+        res1 = @obj.strategy(@odds, b1)
+        res2 = @obj.strategy(@odds, b2)
         expect(res1[0]).to within(1e-6).of(res1[1])
         expect(res2[1]).to within(1e-6).of(res2[2])
       end

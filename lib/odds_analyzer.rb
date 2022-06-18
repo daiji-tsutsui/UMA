@@ -9,6 +9,9 @@ class OddsAnalyzer
   PROBABLE_GUARANTY = 0.6
   PROBABLE_RETURN = 0.8
 
+  # t: true distribution
+  # a: weight of importance at this moment
+  # b: coefficient of certainty at this moment
   attr_accessor :t, :a, :b
   attr_reader :model, :blueprint, :ini_p, :eps
 
@@ -19,7 +22,7 @@ class OddsAnalyzer
     @eps = 0.01
   end
 
-  # mathematical model
+  # Mathematical model
   def forecast(odds_list)
     adjust_params(odds_list)
     p = @ini_p
@@ -29,17 +32,14 @@ class OddsAnalyzer
       odds = odds_list[i - 1]
       a = @a[i] / @a.first(i + 1).sum
       b = @b[i]
-      p = forecast_next(p, odds, @t, a, b)
+      p = forecast_next(p, odds, a, b)
       @model.push p
     end
     @model
   end
 
-  # t: true distribution
-  # a: weight of importance at this moment
-  # b: coefficient of certainty at this moment
-  def forecast_next(prev, odds, t, a, b)
-    q = strategy(odds, t, b)
+  def forecast_next(prev, odds, a, b)
+    q = strategy(odds, b)
     @blueprint.push q
     prev.map.with_index { |r, i| ((1.0 - a) * r) + (a * q[i]) }
   end
@@ -65,15 +65,10 @@ class OddsAnalyzer
     end
   end
 
-  # TODO: private?
-  def strategy(odds, t, b)
-    exp_gain = t.schur(odds)
+  def strategy(odds, b = @b[-1])
+    exp_gain = @t.schur(odds)
     w = exp_gain.map { |r| Math.exp(r * b) }
     Probability.new(w)
-  end
-
-  def strat(odds, b = @b[-1])
-    strategy(odds, @t, b)
   end
 
   def probable_strat(odds)
