@@ -2,7 +2,6 @@
 
 require './lib/probability'
 require './lib/positives'
-require './lib/parameter/importance_ratio'
 
 # Object class for mathematical model for fitting time series of odds
 class OddsAnalyzer
@@ -14,9 +13,9 @@ class OddsAnalyzer
 
   def initialize(logger = nil)
     @logger = logger
-    fetch_env
-    @a = ImportanceRatio.new(@eps)
+    @a = Probability.new
     @b = Positives.new # @b[0]はdummy
+    fetch_env
   end
 
   # Mathematical model
@@ -46,7 +45,7 @@ class OddsAnalyzer
     warnings = []
     @model.each do |p|
       warnings.concat [
-        @a.update(p, odds_list, @blueprint),
+        update_a(p, odds_list),
         update_t(p, odds_list),
         update_b(p, odds_list),
       ]
@@ -90,7 +89,7 @@ class OddsAnalyzer
   def adjust_params(odds_list)
     @ini_p ||= Probability.new_from_odds(odds_list[0])
     @t ||= @ini_p.clone
-    @a.adjust(odds_list.size, @ini_p)
+    @a.extend_to!(odds_list.size) if @a.size < odds_list.size
     @b.extend_to!(odds_list.size) if @b.size < odds_list.size
   end
 
@@ -103,6 +102,12 @@ class OddsAnalyzer
     end
   end
 
+  def update_a(p, odds_list)
+    da = grad_a(p, odds_list)
+    v = da.map { |da_i| -@eps * da_i }
+    @a.move_in_theta!(v, 'a')
+  end
+
   def update_b(p, odds_list)
     db = grad_b(p, odds_list)
     v = db.map { |db_i| -@eps * db_i }
@@ -113,6 +118,13 @@ class OddsAnalyzer
     dt = grad_t(p, odds_list)
     v = dt.map { |dt_i| -@eps * dt_i }
     @t.move_in_theta!(v, 'b')
+  end
+
+  def grad_a(p, odds_list)
+    @blueprint.map.with_index(1) do |strat, k|
+      teacher = Probability.new_from_odds(odds_list[k])
+      grad_a_for_instant(p, teacher, strat)
+    end
   end
 
   def grad_b(p, odds_list)
@@ -128,6 +140,11 @@ class OddsAnalyzer
       grad_t_for_instant(p, teacher, strat, @a[k], @b[k], odds_list[k])
     end
     grad_list.transpose.map(&:sum)
+  end
+
+  def grad_a_for_instant(p, teacher, strat)
+    f = p.map.with_index { |p_i, i| (strat[i] - @ini_p[i]) / p_i }
+    -teacher.expectation(f)
   end
 
   def grad_b_for_instant(p, teacher, strat, a, odds)

@@ -16,7 +16,10 @@ Metrics/AbcSize:
     - lib/report_maker.rb
 
 Naming/MethodParameterName:
-  MinNameLength: 1
+  Exclude:
+    - lib/probability.rb
+    - lib/positives.rb
+    - lib/odds_analyzer.rb
 Naming/AccessorMethodName:
   Exclude:
     - lib/jra/pages.rb
