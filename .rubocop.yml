@@ -1,7 +1,12 @@
+inherit_from: .rubocop_todo.yml
+
 AllCops:
   NewCops: enable
   SuggestExtensions: false
 
+Metrics/ClassLength:
+  Exclude:
+    - lib/odds_analyzer.rb
 Metrics/BlockLength:
   Exclude:
     - spec/*_spec.rb
@@ -9,11 +14,17 @@ Metrics/MethodLength:
   Exclude:
     - spec/*_spec.rb
     - lib/odds_fetcher.rb
+  IgnoredMethods:
+    - forecast
 Metrics/AbcSize:
   Exclude:
     - spec/*_spec.rb
     - lib/odds_fetcher.rb
     - lib/report_maker.rb
+  IgnoredMethods:
+    - truncate
+    - grad_t_for_instant
+    - fisher
 
 Naming/MethodParameterName:
   Exclude:
