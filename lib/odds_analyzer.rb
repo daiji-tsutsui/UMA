@@ -5,10 +5,6 @@ require './lib/positives'
 
 # Object class for mathematical model for fitting time series of odds
 class OddsAnalyzer
-  PROBABLE_EFFICIENCY = 0.05
-  PROBABLE_GUARANTY = 0.6
-  PROBABLE_RETURN = 0.8
-
   # t: true distribution
   # a: weight of importance at this moment
   # b: coefficient of certainty at this moment
@@ -19,7 +15,7 @@ class OddsAnalyzer
     @logger = logger
     @a = Probability.new
     @b = Positives.new # @b[0]はdummy
-    @eps = 0.01
+    fetch_env
   end
 
   # Mathematical model
@@ -73,15 +69,22 @@ class OddsAnalyzer
 
   def probable_strat(odds)
     gain_by_pay = @t.schur(odds).map.with_index { |r, i| [i, r] }.to_h
-    gain_by_pay.delete_if { |key, _val| @t[key] < PROBABLE_EFFICIENCY }
+    gain_by_pay.delete_if { |key, _val| @t[key] < @probable_efficiency }
     gain_by_pay = gain_by_pay.sort { |a, b| a[1] <=> b[1] }
-    gain_by_pay.shift while gain_by_pay[1..].sum(0.0) { |e| @t[e[0]] } > PROBABLE_GUARANTY
+    gain_by_pay.shift while gain_by_pay[1..].sum(0.0) { |e| @t[e[0]] } > @probable_guaranty
     result = Array.new(odds.size, nil)
-    gain_by_pay.to_h.each { |key, _val| result[key] = PROBABLE_RETURN / odds[key] }
+    gain_by_pay.to_h.each { |key, _val| result[key] = @probable_return / odds[key] }
     result
   end
 
   private
+
+  def fetch_env
+    @eps = ENV.fetch('ODDS_ANALYZER_LEARNING_RATE', 0.01).to_f
+    @probable_efficiency = ENV.fetch('ODDS_ANALYZER_PROBABLE_EFFICIENCY', 0.05).to_f
+    @probable_guaranty = ENV.fetch('ODDS_ANALYZER_PROBABLE_GUARANTY', 0.6).to_f
+    @probable_return = ENV.fetch('ODDS_ANALYZER_PROBABLE_RETURN', 0.8).to_f
+  end
 
   def adjust_params(odds_list)
     @ini_p ||= Probability.new_from_odds(odds_list[0])
