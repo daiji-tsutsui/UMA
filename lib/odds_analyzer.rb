@@ -68,12 +68,10 @@ class OddsAnalyzer
   end
 
   def probable_strat(odds)
-    gain_by_pay = @t.schur(odds).map.with_index { |r, i| [i, r] }.to_h
-    gain_by_pay.delete_if { |key, _val| @t[key] < @probable_efficiency }
-    gain_by_pay = gain_by_pay.sort { |a, b| a[1] <=> b[1] }
-    gain_by_pay.shift while gain_by_pay[1..].sum(0.0) { |e| @t[e[0]] } > @probable_guaranty
     result = Array.new(odds.size, nil)
-    gain_by_pay.to_h.each { |key, _val| result[key] = @probable_return / odds[key] }
+    exp_gain = @t.schur(odds)
+    candidates = truncate(exp_gain)
+    candidates.each { |key, _val| result[key] = @probable_return / odds[key] }
     result
   end
 
@@ -100,6 +98,14 @@ class OddsAnalyzer
 
       @logger.nil? ? puts("[WARN][#{Time.new}] #{warn}") : @logger.warn(warn)
     end
+  end
+
+  def truncate(exp_gain)
+    exp_gain = exp_gain.map.with_index { |r, i| [i, r] }.to_h
+    exp_gain.delete_if { |key, _val| @t[key] < @probable_efficiency }
+    exp_gain = exp_gain.sort { |a, b| a[1] <=> b[1] }
+    exp_gain.shift while exp_gain[1..].map { |e| @t[e[0]] }.sum > @probable_guaranty
+    exp_gain.to_h
   end
 
   def update_a(p, odds_list)
