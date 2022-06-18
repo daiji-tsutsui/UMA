@@ -13,6 +13,7 @@ Metrics/AbcSize:
   Exclude:
     - spec/*_spec.rb
     - lib/odds_fetcher.rb
+    - lib/report_maker.rb
 
 Naming/MethodParameterName:
   Exclude:

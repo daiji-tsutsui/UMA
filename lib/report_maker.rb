@@ -104,8 +104,7 @@ class ReportMaker
   end
 
   def graph_horse_info(array, label)
-    data = array.map.with_index { |r, i| [i, r] }
-                .sort { |a, b| b[1] <=> a[1] }
+    data = array.map.with_index { |r, i| [i, r] }.sort { |a, b| b[1] <=> a[1] }
     row = "#{label} ======\n"
     row_num = [array.size, VISUALIZE_HOUSE_NUM].min
     row_num.times do |i|
