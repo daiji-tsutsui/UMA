@@ -17,30 +17,38 @@ class Uma
     @simulate ? init_simulator(options[:simfile]) : init_runner(options)
     @analyzer = OddsAnalyzer.new(@logger)
     @summarizer = ReportMaker.new(@analyzer, @logger)
-    @learn_interval = ENV.fetch('UMA_LEARNING_INTERVAL', 100).to_i
+    fetch_env
     update_odds_list
     init_params
     @logger.info "DataManager got data: #{@manager.data}"
   end
 
-  # TODO: 100とか0.02とか全部環境変数化したい
   def run
     count = 0
     until @scheduler.finished?
-      if @scheduler.on_fire?
-        update
-      elsif on_learning?
-        (count % @learn_interval).zero? ? learn(check_loss: true) : learn
-        sleep 0.02
-      else
-        sleep 1
-      end
       count += 1
+      next if done_update?
+      next if done_learning_with_sleep?(count)
+
+      sleep @idle_wait
     end
     finalize
   end
 
   private
+
+  def fetch_env
+    @learn_interval = ENV.fetch('UMA_LEARNING_INTERVAL', 100).to_i
+    @learn_wait = ENV.fetch('UMA_LEARNING_WAIT', 0.02).to_f
+    @idle_wait = ENV.fetch('UMA_IDLING_WAIT', 1.0).to_f
+  end
+
+  def done_update?
+    return false unless @scheduler.on_fire?
+
+    update
+    true
+  end
 
   def update
     summarize(force: true)
@@ -48,6 +56,14 @@ class Uma
     @manager.receive(new_odds) unless @simulate
     update_odds_list
     init_flags
+  end
+
+  def done_learning_with_sleep?(count)
+    return false unless on_learning?
+
+    (count % @learn_interval).zero? ? learn(check_loss: true) : learn
+    sleep @learn_wait
+    true
   end
 
   def learn(check_loss: false)
@@ -102,28 +118,20 @@ class Uma
 
   def update_odds_list
     @odds_list = (@simulate ? @fetcher.odds : @manager.odds)
-    save
-  end
-
-  def save
     @manager.save unless @simulate
   end
 
   def logging_loss(loss)
     @logger.info "Loss: #{loss}"
-    summarize(force: true) if check_conv(loss)
-    store_loss(loss)
+    summarize(force: true) if converge?(loss)
+    @prev_loss = loss
   end
 
-  def check_conv(loss)
+  def converge?(loss)
     return false unless (loss - @prev_loss).abs < 1e-5
 
     @converge = true
     @logger.info 'Fitting converges!'
     true
-  end
-
-  def store_loss(loss)
-    @prev_loss = loss
   end
 end

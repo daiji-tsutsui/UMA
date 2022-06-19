@@ -5,10 +5,9 @@ require './lib/positives'
 
 # Object class for mathematical model for fitting time series of odds
 class OddsAnalyzer
-  PROBABLE_EFFICIENCY = 0.05
-  PROBABLE_GUARANTY = 0.6
-  PROBABLE_RETURN = 0.8
-
+  # t: true distribution
+  # a: weight of importance at this moment
+  # b: coefficient of certainty at this moment
   attr_accessor :t, :a, :b
   attr_reader :model, :blueprint, :ini_p, :eps
 
@@ -16,10 +15,10 @@ class OddsAnalyzer
     @logger = logger
     @a = Probability.new
     @b = Positives.new # @b[0]はdummy
-    @eps = 0.01
+    fetch_env
   end
 
-  # mathematical model
+  # Mathematical model
   def forecast(odds_list)
     adjust_params(odds_list)
     p = @ini_p
@@ -29,17 +28,14 @@ class OddsAnalyzer
       odds = odds_list[i - 1]
       a = @a[i] / @a.first(i + 1).sum
       b = @b[i]
-      p = forecast_next(p, odds, @t, a, b)
+      p = forecast_next(p, odds, a, b)
       @model.push p
     end
     @model
   end
 
-  # t: true distribution
-  # a: weight of importance at this moment
-  # b: coefficient of certainty at this moment
-  def forecast_next(prev, odds, t, a, b)
-    q = strategy(odds, t, b)
+  def forecast_next(prev, odds, a, b)
+    q = strategy(odds, b)
     @blueprint.push q
     prev.map.with_index { |r, i| ((1.0 - a) * r) + (a * q[i]) }
   end
@@ -65,28 +61,28 @@ class OddsAnalyzer
     end
   end
 
-  # TODO: private?
-  def strategy(odds, t, b)
-    exp_gain = t.schur(odds)
+  def strategy(odds, b = @b[-1])
+    exp_gain = @t.schur(odds)
     w = exp_gain.map { |r| Math.exp(r * b) }
     Probability.new(w)
   end
 
-  def strat(odds, b = @b[-1])
-    strategy(odds, @t, b)
-  end
-
   def probable_strat(odds)
-    gain_by_pay = @t.schur(odds).map.with_index { |r, i| [i, r] }.to_h
-    gain_by_pay.delete_if { |key, _val| @t[key] < PROBABLE_EFFICIENCY }
-    gain_by_pay = gain_by_pay.sort { |a, b| a[1] <=> b[1] }
-    gain_by_pay.shift while gain_by_pay[1..].sum(0.0) { |e| @t[e[0]] } > PROBABLE_GUARANTY
     result = Array.new(odds.size, nil)
-    gain_by_pay.to_h.each { |key, _val| result[key] = PROBABLE_RETURN / odds[key] }
+    exp_gain = @t.schur(odds)
+    candidates = truncate(exp_gain)
+    candidates.each { |key, _val| result[key] = @probable_return / odds[key] }
     result
   end
 
   private
+
+  def fetch_env
+    @eps = ENV.fetch('ODDS_ANALYZER_LEARNING_RATE', 0.01).to_f
+    @probable_efficiency = ENV.fetch('ODDS_ANALYZER_PROBABLE_EFFICIENCY', 0.05).to_f
+    @probable_guaranty = ENV.fetch('ODDS_ANALYZER_PROBABLE_GUARANTY', 0.6).to_f
+    @probable_return = ENV.fetch('ODDS_ANALYZER_PROBABLE_RETURN', 0.8).to_f
+  end
 
   def adjust_params(odds_list)
     @ini_p ||= Probability.new_from_odds(odds_list[0])
@@ -102,6 +98,14 @@ class OddsAnalyzer
 
       @logger.nil? ? puts("[WARN][#{Time.new}] #{warn}") : @logger.warn(warn)
     end
+  end
+
+  def truncate(exp_gain)
+    exp_gain = exp_gain.map.with_index { |r, i| [i, r] }.to_h
+    exp_gain.delete_if { |key, _val| @t[key] < @probable_efficiency }
+    exp_gain = exp_gain.sort { |a, b| a[1] <=> b[1] }
+    exp_gain.shift while exp_gain[1..].map { |e| @t[e[0]] }.sum > @probable_guaranty
+    exp_gain.to_h
   end
 
   def update_a(p, odds_list)

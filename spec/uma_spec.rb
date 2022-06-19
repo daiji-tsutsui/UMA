@@ -11,6 +11,8 @@ RSpec.describe Uma do
     ENV['SIMULATOR_END_WAIT'] = '0'
     ENV['SCHEDULER_DEADLINE_ROOM_UNTIL_FIRE'] = '0.2'
     ENV['UMA_LEARNING_INTERVAL'] = '1'
+    ENV['UMA_LEARNING_WAIT'] = '0.05'
+    ENV['UMA_IDLING_WAIT'] = '1.0'
     @obj = Uma.new(
       simulate: true,
       simfile:  'dummy_for_test',

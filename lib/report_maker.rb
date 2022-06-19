@@ -48,8 +48,8 @@ class ReportMaker
     summary += row_horse_info(@analyzer.t, 'probability', '%9.5f')
     summary += row_horse_info(odds, 'current odds', '%9.1f')
     summary += row_horse_info(opt_odds, 'optimal odds', '%9.1f')
-    summary += row_horse_info(@analyzer.strat(odds, 1.0), 'weak strat', '%9.5f', @analyzer.t.schur(odds))
-    summary += row_horse_info(@analyzer.strat(odds, 10.0), 'strong strat', '%9.5f', @analyzer.t.schur(odds))
+    summary += row_horse_info(@analyzer.strategy(odds, 1.0), 'weak strat', '%9.5f', @analyzer.t.schur(odds))
+    summary += row_horse_info(@analyzer.strategy(odds, 10.0), 'strong strat', '%9.5f', @analyzer.t.schur(odds))
     summary += row_horse_info(@analyzer.probable_strat(odds), 'probable st.', '%9.5f')
     summary
   end
@@ -104,8 +104,7 @@ class ReportMaker
   end
 
   def graph_horse_info(array, label)
-    data = array.map.with_index { |r, i| [i, r] }
-                .sort { |a, b| b[1] <=> a[1] }
+    data = array.map.with_index { |r, i| [i, r] }.sort { |a, b| b[1] <=> a[1] }
     row = "#{label} ======\n"
     row_num = [array.size, VISUALIZE_HOUSE_NUM].min
     row_num.times do |i|

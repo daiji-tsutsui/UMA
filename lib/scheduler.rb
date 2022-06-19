@@ -8,7 +8,7 @@ class Scheduler
 
   def initialize(logger)
     @logger = logger
-    @deadline_room_until_fire = ENV.fetch('SCHEDULER_DEADLINE_ROOM_UNTIL_FIRE', 10).to_f
+    @deadline_room_until_fire = ENV.fetch('SCHEDULER_DEADLINE_ROOM_UNTIL_FIRE', 10.0).to_f
     initialize_time_table
     @next = @table.shift
   end
