@@ -44,11 +44,7 @@ class OddsAnalyzer
     with_forecast ? forecast(odds_list) : adjust_params(odds_list)
     warnings = []
     @model.each do |p|
-      warnings.concat [
-        update_a(p, odds_list),
-        update_t(p, odds_list),
-        update_b(p, odds_list),
-      ]
+      warnings.push(update_a(p, odds_list), update_t(p, odds_list), update_b(p, odds_list))
     end
     validate_params(warnings)
   end

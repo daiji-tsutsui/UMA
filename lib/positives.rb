@@ -4,7 +4,7 @@
 class Positives < Array
   def initialize(w = [])
     super(w)
-    self.concat([1.0]) if self.empty?
+    self.push(1.0) if self.empty?
   end
 
   def move!(v, _name = nil)

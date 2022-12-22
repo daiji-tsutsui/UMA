@@ -79,7 +79,7 @@ class Probability < Positives
     warn = nil
     self.each do |p_i|
       if p_i.negative?
-        warn = "Probability \'#{name}\' maybe has a negative entry"
+        warn = "Probability '#{name}' maybe has a negative entry"
         break
       end
     end
@@ -89,7 +89,7 @@ class Probability < Positives
   def validate_total(name = nil)
     return unless (self.sum - 1.0).abs > 0.05
 
-    "Probability \'#{name}\' is maybe not normalized"
+    "Probability '#{name}' is maybe not normalized"
   end
 
   def fisher
