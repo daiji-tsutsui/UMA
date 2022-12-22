@@ -3,5 +3,6 @@ vendor/
 Gemfile.lock
 data/*
 !data/dummy_for_test.yml
+!data/20220612_EpsomCup.yml
 log/
 debug.rb
