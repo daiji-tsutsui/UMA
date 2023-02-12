@@ -14,10 +14,15 @@ class Positives < Array
   end
 
   def move_in_theta!(v)
-    v_theta = v.map.with_index(1) { |v_i, i| v_i / self[i] }
+    v_theta = v.map.with_index(1) { |v_i, i| v_i * self[i] }
     v_theta.each.with_index(1) do |v_i, i|
       self[i] *= Math.exp(v_i)
     end
+  end
+
+  def move_with_natural_grad!(v)
+    v_theta = v.map.with_index(1) { |v_i, i| v_i * self[i] }
+    v_theta.each.with_index(1) { |v_i, i| self[i] += v_i }
   end
 
   def extend_to!(trg_size)

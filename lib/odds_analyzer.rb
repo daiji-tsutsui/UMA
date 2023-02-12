@@ -100,19 +100,19 @@ class OddsAnalyzer
   def update_a(p, odds_list)
     da = grad_a(p, odds_list)
     v = da.map { |da_i| -@eps * da_i }
-    @a.move_in_theta!(v)
+    @a.move_with_natural_grad!(v)
   end
 
   def update_b(p, odds_list)
     db = grad_b(p, odds_list)
     v = db.map { |db_i| -@eps * db_i }
-    @b.move_in_theta!(v)
+    @b.move_with_natural_grad!(v)
   end
 
   def update_t(p, odds_list)
     dt = grad_t(p, odds_list)
     v = dt.map { |dt_i| -@eps * dt_i }
-    @t.move_in_theta!(v)
+    @t.move_with_natural_grad!(v)
   end
 
   def grad_a(p, odds_list)

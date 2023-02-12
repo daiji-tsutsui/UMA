@@ -23,12 +23,21 @@ class Probability < Positives
 
   # v: eta-vector
   def move_in_theta!(v)
-    v_theta = inv_fisher.map do |row|
+    v_theta = fisher.map do |row|
       row.map.with_index { |entry, j| entry * v[j] }.sum
     end
     v_theta.each.with_index(1) do |v_i, i|
       self[i] *= Math.exp(v_i)
     end
+    normalize
+  end
+
+  # v: eta-vector
+  def move_with_natural_grad!(v)
+    v_natural = fisher.map do |row|
+      row.map.with_index { |entry, j| entry * v[j] }.sum
+    end
+    v_natural.each.with_index(1) { |v_i, i| self[i] += v_i }
     normalize
   end
 
