@@ -42,14 +42,15 @@ class OddsAnalyzer
 
   def update_params(odds_list, with_forecast: false)
     with_forecast ? forecast(odds_list) : adjust_params(odds_list)
-    warnings = []
     @model.each do |p|
-      warnings.push(update_a(p, odds_list), update_t(p, odds_list), update_b(p, odds_list))
+      update_a(p, odds_list)
+      update_t(p, odds_list)
+      update_b(p, odds_list)
     end
-    validate_params(warnings)
   end
 
   def loss(odds_list, with_forecast: false)
+    debug_logging if @debug
     with_forecast ? forecast(odds_list) : adjust_params(odds_list)
     @model.map.with_index do |q, k|
       p = Probability.new_from_odds(odds_list[k + 1])
@@ -74,10 +75,11 @@ class OddsAnalyzer
   private
 
   def fetch_env
-    @eps = ENV.fetch('ODDS_ANALYZER_LEARNING_RATE', 0.01).to_f
+    @eps = ENV.fetch('ODDS_ANALYZER_LEARNING_RATE', 0.001).to_f
     @probable_efficiency = ENV.fetch('ODDS_ANALYZER_PROBABLE_EFFICIENCY', 0.05).to_f
     @probable_guaranty = ENV.fetch('ODDS_ANALYZER_PROBABLE_GUARANTY', 0.6).to_f
     @probable_return = ENV.fetch('ODDS_ANALYZER_PROBABLE_RETURN', 0.8).to_f
+    @debug = ENV.fetch('ODDS_ANALYZER_DEBUG', '') == 'true'
   end
 
   def adjust_params(odds_list)
@@ -85,15 +87,6 @@ class OddsAnalyzer
     @t ||= @ini_p.clone
     @a.extend_to!(odds_list.size) if @a.size < odds_list.size
     @b.extend_to!(odds_list.size) if @b.size < odds_list.size
-  end
-
-  def validate_params(addition = [])
-    warnings = @a.validate('a') + @t.validate('t') + addition
-    warnings.each do |warn|
-      next if warn.nil?
-
-      @logger.nil? ? puts("[WARN][#{Time.new}] #{warn}") : @logger.warn(warn)
-    end
   end
 
   def truncate(exp_gain)
@@ -107,19 +100,19 @@ class OddsAnalyzer
   def update_a(p, odds_list)
     da = grad_a(p, odds_list)
     v = da.map { |da_i| -@eps * da_i }
-    @a.move_in_theta!(v, 'a')
+    @a.move_in_theta!(v)
   end
 
   def update_b(p, odds_list)
     db = grad_b(p, odds_list)
     v = db.map { |db_i| -@eps * db_i }
-    @b.move_in_theta!(v, 'b')
+    @b.move_in_theta!(v)
   end
 
   def update_t(p, odds_list)
     dt = grad_t(p, odds_list)
     v = dt.map { |dt_i| -@eps * dt_i }
-    @t.move_in_theta!(v, 'b')
+    @t.move_in_theta!(v)
   end
 
   def grad_a(p, odds_list)
@@ -169,5 +162,11 @@ class OddsAnalyzer
 
   def delta(i, j)
     Probability.delta(i, j)
+  end
+
+  def debug_logging
+    @logger.debug("t: #{@t}")
+    @logger.debug("a: #{@a}")
+    @logger.debug("b: #{@b}")
   end
 end

@@ -41,6 +41,7 @@ class Uma
     @learn_interval = ENV.fetch('UMA_LEARNING_INTERVAL', 100).to_i
     @learn_wait = ENV.fetch('UMA_LEARNING_WAIT', 0.02).to_f
     @idle_wait = ENV.fetch('UMA_IDLING_WAIT', 1.0).to_f
+    @error_tolerance = ENV.fetch('UMA_CONVERGE_ERROR_TOLERANCE', 1e-5).to_f
   end
 
   def done_update?
@@ -128,7 +129,7 @@ class Uma
   end
 
   def converge?(loss)
-    return false unless (loss - @prev_loss).abs < 1e-5
+    return false unless (loss - @prev_loss).abs < @error_tolerance
 
     @converge = true
     @logger.info 'Fitting converges!'
