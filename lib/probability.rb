@@ -2,17 +2,15 @@
 
 require './lib/positives'
 
-# Presentation for probability distributions
+# Presentation for probability distributions on $n+1$ points
 class Probability < Positives
-  VALIDATION_NEGATIVE_MARGIN = 1e-5
-  VALIDATION_TOTAL_MARGIN = 1e-3
-
   def initialize(w = [])
     super(w)
     normalize
   end
 
-  # v: eta-vector
+  # override
+  # v: $n$-dim eta-vector
   def move!(v)
     v.each.with_index(1) do |v_i, i|
       self[i] += v_i
@@ -21,31 +19,20 @@ class Probability < Positives
     normalize
   end
 
-  # v: eta-vector
-  def move_in_theta!(v)
-    v_theta = fisher.map do |row|
-      row.map.with_index { |entry, j| entry * v[j] }.sum
-    end
-    v_theta.each.with_index(1) do |v_i, i|
-      self[i] *= Math.exp(v_i)
-    end
-    normalize
-  end
-
-  # v: eta-vector
-  def move_with_natural_grad!(v)
-    v_natural = fisher.map do |row|
-      row.map.with_index { |entry, j| entry * v[j] }.sum
-    end
-    v_natural.each.with_index(1) { |v_i, i| self[i] += v_i }
-    normalize
-  end
-
   def extend_to!(trg_size)
     self.map! { |p_i| p_i * self.size.to_f / trg_size.to_f }
     ext = Array.new(trg_size - self.size, 1.0 / trg_size.to_f)
     self.concat(ext)
     normalize
+  end
+
+  # Make a copy shirnked to probability distributions on $m+1$ points
+  def shrink(m)
+    Probability.new(self[0..m])
+  end
+
+  def shrink_rate(m)
+    1.0 / self[0..m].sum
   end
 
   def expectation(f)
@@ -64,41 +51,27 @@ class Probability < Positives
     end
 
     def delta(i, j)
-      return 1.0 if i == j
-
-      0.0
+      i == j ? 1.0 : 0.0
     end
   end
 
   private
 
-  def normalize
-    self.map! { |v| [v, VALIDATION_NEGATIVE_MARGIN].max }
+  def normalize!
+    super
     total = self.sum
     self.map! { |r| r / total }
   end
 
+  # $n \times n$ matrix
   def fisher
-    size1 = self.size - 1
+    size1 = size - 1
     matrix = Array.new(size1)
     (0..size1 - 1).each do |i|
       matrix[i] = Array.new(size1, 0.0)
       (0..size1 - 1).each do |j|
         matrix[i][j] = self[i + 1] if i == j
         matrix[i][j] -= self[i + 1] * self[j + 1]
-      end
-    end
-    matrix
-  end
-
-  def inv_fisher
-    size1 = self.size - 1
-    matrix = Array.new(size1)
-    (0..size1 - 1).each do |i|
-      matrix[i] = Array.new(size1, 0.0)
-      (0..size1 - 1).each do |j|
-        matrix[i][j] = 1.0 / self[i + 1] if i == j
-        matrix[i][j] += 1.0 / self[0]
       end
     end
     matrix

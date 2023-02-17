@@ -77,7 +77,7 @@ RSpec.describe Probability do
     end
   end
 
-  describe '#move_in_theta!' do
+  describe '#move_with_natural_grad!' do
     before do
       @ini = [0.125, 0.375, 0.5]
       @src = Probability.new(@ini)
@@ -86,7 +86,7 @@ RSpec.describe Probability do
     describe 'moves self in the meaning of e-parallel transportation' do
       before do
         v = [1.0, 1.0]
-        @src.move_in_theta!(v)
+        @src.move_with_natural_grad!(v)
       end
 
       it 'gives result close to the initial value' do
@@ -100,13 +100,13 @@ RSpec.describe Probability do
     end
     it 'does not move self when v is 0' do
       v = [0.0, 0.0]
-      @src.move_in_theta!(v)
+      @src.move_with_natural_grad!(v)
       expect(@src).to eq @ini
     end
     it 'ignores the arg name' do
       v = [2.0, 3.0]
       name = 'name'
-      @src.move_in_theta!(v, name)
+      @src.move_with_natural_grad!(v, name)
       expect(warn).to eq nil
     end
   end

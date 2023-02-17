@@ -35,17 +35,18 @@ class OddsAnalyzer
   end
 
   def forecast_next(prev, odds, a, b)
-    q = strategy(odds, b)
-    @blueprint.push q
-    prev.map.with_index { |r, i| ((1.0 - a) * r) + (a * q[i]) }
+    s = strategy(odds, b)
+    @blueprint.push s
+    prev.map.with_index { |r, i| ((1.0 - a) * r) + (a * s[i]) }
   end
 
   def update_params(odds_list, with_forecast: false)
     with_forecast ? forecast(odds_list) : adjust_params(odds_list)
-    @model.each do |p|
-      update_a(p, odds_list)
-      update_t(p, odds_list)
-      update_b(p, odds_list)
+    @model.each.with_index(1) do |p, m|
+      q = Probability.new_from_odds(odds_list[m])
+      update_a(m, p, q)
+      update_t(m, p, q, odds_list)
+      update_b(m, p, q, odds_list)
     end
   end
 
@@ -97,67 +98,75 @@ class OddsAnalyzer
     exp_gain.to_h
   end
 
-  def update_a(p, odds_list)
-    da = grad_a(p, odds_list)
+  def update_a(m, p, q)
+    da = grad_a(m, p, q)
     v = da.map { |da_i| -@eps * da_i }
     @a.move_with_natural_grad!(v)
   end
 
-  def update_b(p, odds_list)
-    db = grad_b(p, odds_list)
+  def update_b(m, p, q, odds_list)
+    db = grad_b(m, p, q, odds_list)
     v = db.map { |db_i| -@eps * db_i }
     @b.move_with_natural_grad!(v)
   end
 
-  def update_t(p, odds_list)
-    dt = grad_t(p, odds_list)
+  def update_t(m, p, q, odds_list)
+    dt = grad_t(m, p, q, odds_list)
     v = dt.map { |dt_i| -@eps * dt_i }
     @t.move_with_natural_grad!(v)
   end
 
-  def grad_a(p, odds_list)
+  def grad_a(m, p, q)
     @blueprint.map.with_index(1) do |strat, k|
-      teacher = Probability.new_from_odds(odds_list[k])
-      grad_a_for_instant(p, teacher, strat)
+      grad_a_for_instant(k, m, p, q, strat)
     end
   end
 
-  def grad_b(p, odds_list)
+  def grad_a_for_instant(k, m, p, q, strat)
+    alpha = @a.shrink_rate(m)
+    f = if k > m
+          a = @a.shrink(m)
+          p.map.with_index do |p_i, i|
+            alpha * (1..m).map { |h| a[h] * (@blueprint[h - 1][i] - @ini_p[i]) / p_i }.sum
+          end
+        else
+          p.map.with_index { |p_i, i| alpha * (strat[i] - @ini_p[i]) / p_i }
+        end
+    -q.expectation(f)
+  end
+
+  def grad_b(m, p, q, odds_list)
     @blueprint.map.with_index(1) do |strat, k|
-      teacher = Probability.new_from_odds(odds_list[k])
-      grad_b_for_instant(p, teacher, strat, @a[k], odds_list[k])
+      grad_b_for_instant(k, m, p, q, strat, odds_list)
     end
   end
 
-  def grad_t(p, odds_list)
-    grad_list = @blueprint.map.with_index(1) do |strat, k|
-      teacher = Probability.new_from_odds(odds_list[k])
-      grad_t_for_instant(p, teacher, strat, @a[k], @b[k], odds_list[k])
-    end
-    grad_list.transpose.map(&:sum)
-  end
+  def grad_b_for_instant(k, m, p, q, strat, odds_list)
+    return 0.0 if k > m
 
-  def grad_a_for_instant(p, teacher, strat)
-    f = p.map.with_index { |p_i, i| (strat[i] - @ini_p[i]) / p_i }
-    -teacher.expectation(f)
-  end
-
-  def grad_b_for_instant(p, teacher, strat, a, odds)
-    f1 = @t.schur(odds)
+    a = @a.shrink(m)
+    f1 = @t.schur(odds_list[k])
     exp_f1 = strat.expectation(f1)
-    f2 = p.map.with_index { |p_i, i| a * strat[i] * (f1[i] - exp_f1) / p_i }
-    -teacher.expectation(f2)
+    f2 = p.map.with_index { |p_i, i| a[k] * strat[i] * (f1[i] - exp_f1) / p_i }
+    -q.expectation(f2)
   end
 
-  def grad_t_for_instant(p, teacher, strat, a, b, odds)
-    result = []
-    (1..odds.size - 1).each do |j|
-      f = p.map.with_index do |p_i, i|
-        a * b * strat[i] * ((odds[j] * (delta(i, j) - strat[j])) - (odds[0] * (delta(i, 0) - strat[0]))) / p_i
-      end
-      result.push(-teacher.expectation(f))
+  def grad_t(m, p, q, odds_list)
+    (1..@t.size - 1).map do |j|
+      grad_t_for_coord_axis(j, m, p, q, odds_list)
     end
-    result
+  end
+
+  def grad_t_for_coord_axis(j, m, p, q, odds_list)
+    a = @a.shrink(m)
+    (1..m).inject(0.0) do |sum, k|
+      strat = @blueprint[k]
+      odds = odds_list[k]
+      f = p.map.with_index do |p_i, i|
+        strat[i] * (((delta(i, j) - strat[j]) * odds[j]) - ((delta(i, 0) - strat[0]) * odds[0])) / p_i
+      end
+      sum - (a[k] * @b[k] * q.expectation(f))
+    end
   end
 
   def delta(i, j)

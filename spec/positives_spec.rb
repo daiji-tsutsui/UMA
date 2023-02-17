@@ -40,7 +40,7 @@ RSpec.describe Positives do
     end
   end
 
-  describe '#move_in_theta!' do
+  describe '#move_with_natural_grad!' do
     before do
       @ini = [1.0, 2.0, 3.0]
       @src = Positives.new(@ini)
@@ -48,18 +48,18 @@ RSpec.describe Positives do
 
     it 'moves self in the meaning of e-parallel transportation' do
       v = [1.0, 1.0]
-      @src.move_in_theta!(v)
+      @src.move_with_natural_grad!(v)
       expect(@src).to eq [1.0, 2.0 * Math.exp(2.0 * 1.0), 3.0 * Math.exp(3.0 * 1.0)]
     end
     it 'does not move self when v is 0' do
       v = [0.0, 0.0]
-      @src.move_in_theta!(v)
+      @src.move_with_natural_grad!(v)
       expect(@src).to eq @ini
     end
     it 'ignores the arg name' do
       v = [2.0, 3.0]
       name = 'name'
-      @src.move_in_theta!(v, name)
+      @src.move_with_natural_grad!(v, name)
       expect(warn).to eq nil
     end
   end
