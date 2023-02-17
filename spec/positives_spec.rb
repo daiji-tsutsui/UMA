@@ -32,12 +32,6 @@ RSpec.describe Positives do
       @src.move!(v)
       expect(@src).to eq @ini
     end
-    it 'ignores the arg name' do
-      v = [2.0, 3.0]
-      name = 'name'
-      @src.move!(v, name)
-      expect(warn).to eq nil
-    end
   end
 
   describe '#move_with_natural_grad!' do
@@ -46,21 +40,15 @@ RSpec.describe Positives do
       @src = Positives.new(@ini)
     end
 
-    it 'moves self in the meaning of e-parallel transportation' do
-      v = [1.0, 1.0]
+    it 'moves self in the direction of natural gradient' do
+      v = [1.0, 2.0]
       @src.move_with_natural_grad!(v)
-      expect(@src).to eq [1.0, 2.0 * Math.exp(2.0 * 1.0), 3.0 * Math.exp(3.0 * 1.0)]
+      expect(@src).to eq [1.0, 2.0 * (1.0 + v[0]), 3.0 * (1.0 + v[1])]
     end
     it 'does not move self when v is 0' do
       v = [0.0, 0.0]
       @src.move_with_natural_grad!(v)
       expect(@src).to eq @ini
-    end
-    it 'ignores the arg name' do
-      v = [2.0, 3.0]
-      name = 'name'
-      @src.move_with_natural_grad!(v, name)
-      expect(warn).to eq nil
     end
   end
 

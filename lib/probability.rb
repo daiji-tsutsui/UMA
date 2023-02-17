@@ -6,7 +6,7 @@ require './lib/positives'
 class Probability < Positives
   def initialize(w = [])
     super(w)
-    normalize
+    normalize!
   end
 
   # override
@@ -16,14 +16,14 @@ class Probability < Positives
       self[i] += v_i
       self[0] -= v_i
     end
-    normalize
+    normalize!
   end
 
   def extend_to!(trg_size)
     self.map! { |p_i| p_i * self.size.to_f / trg_size.to_f }
     ext = Array.new(trg_size - self.size, 1.0 / trg_size.to_f)
     self.concat(ext)
-    normalize
+    normalize!
   end
 
   # Make a copy shirnked to probability distributions on $m+1$ points

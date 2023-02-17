@@ -76,7 +76,7 @@ class OddsAnalyzer
   private
 
   def fetch_env
-    @eps = ENV.fetch('ODDS_ANALYZER_LEARNING_RATE', 0.001).to_f
+    @eps = ENV.fetch('ODDS_ANALYZER_LEARNING_RATE', 0.01).to_f
     @probable_efficiency = ENV.fetch('ODDS_ANALYZER_PROBABLE_EFFICIENCY', 0.05).to_f
     @probable_guaranty = ENV.fetch('ODDS_ANALYZER_PROBABLE_GUARANTY', 0.6).to_f
     @probable_return = ENV.fetch('ODDS_ANALYZER_PROBABLE_RETURN', 0.8).to_f
@@ -160,7 +160,7 @@ class OddsAnalyzer
   def grad_t_for_coord_axis(j, m, p, q, odds_list)
     a = @a.shrink(m)
     (1..m).inject(0.0) do |sum, k|
-      strat = @blueprint[k]
+      strat = @blueprint[k - 1]
       odds = odds_list[k]
       f = p.map.with_index do |p_i, i|
         strat[i] * (((delta(i, j) - strat[j]) * odds[j]) - ((delta(i, 0) - strat[0]) * odds[0])) / p_i

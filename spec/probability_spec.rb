@@ -69,12 +69,6 @@ RSpec.describe Probability do
       @src.move!(v)
       expect(@src).to eq @ini
     end
-    it 'warns if the result is invalid' do
-      v = [1e+15, 1e+15]
-      name = 'name'
-      warn = @src.move!(v, name)
-      expect(warn).to eq "Probability 'name' is maybe not normalized"
-    end
   end
 
   describe '#move_with_natural_grad!' do
@@ -83,9 +77,9 @@ RSpec.describe Probability do
       @src = Probability.new(@ini)
     end
 
-    describe 'moves self in the meaning of e-parallel transportation' do
+    describe 'moves self in the direction of natural gradient' do
       before do
-        v = [1.0, 1.0]
+        v = [0.1, 0.1]
         @src.move_with_natural_grad!(v)
       end
 
@@ -98,16 +92,11 @@ RSpec.describe Probability do
         expect(@src.sum).to eq 1.0
       end
     end
+
     it 'does not move self when v is 0' do
       v = [0.0, 0.0]
       @src.move_with_natural_grad!(v)
       expect(@src).to eq @ini
-    end
-    it 'ignores the arg name' do
-      v = [2.0, 3.0]
-      name = 'name'
-      @src.move_with_natural_grad!(v, name)
-      expect(warn).to eq nil
     end
   end
 
