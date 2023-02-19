@@ -6,3 +6,5 @@ data/*
 !data/20220612_EpsomCup.yml
 log/
 debug.rb
+nohup.out
+pid

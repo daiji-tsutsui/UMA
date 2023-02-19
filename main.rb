@@ -2,6 +2,9 @@
 
 require './lib/uma'
 
+# Put pid out to a file
+`echo #{$$} > ./pid`
+
 # https://sp.jra.jp
 uma = Uma.new(
   driver:    :selenium_chrome_headless,

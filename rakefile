@@ -22,7 +22,13 @@ end
 
 desc 'Run main.rb'
 task :run do
-  sh %(/bin/bash -c "source env.sh; bundle exec ruby main.rb")
+  sh %(/bin/bash -c "source env.sh; nohup bundle exec ruby main.rb &")
+end
+
+desc 'Kill UMA running process'
+task :stop do
+  pid = `cat ./pid`
+  sh %(kill #{pid})
 end
 
 task :help do
